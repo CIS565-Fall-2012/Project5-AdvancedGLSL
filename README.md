@@ -58,15 +58,15 @@ You are also required to pick one open-ended effect to implement:
 
 Some examples of what your completed globe renderer will look like:
 
-![Completed globe, day side](HW5-Sandbox/raw/master/readme_files/globe_day.png)
+![Completed globe, day side](Project5-AdvancedGLSL/raw/master/readme_files/globe_day.png)
 
 Figure 0. Completed globe renderer, daylight side.
 
-![Completed globe, twilight](HW5-Sandbox/raw/master/readme_files/globe_twilight.png)
+![Completed globe, twilight](Project5-AdvancedGLSL/raw/master/readme_files/globe_twilight.png)
 
 Figure 1. Completed globe renderer, twilight border.
 
-![Completed globe, night side](HW5-Sandbox/raw/master/readme_files/globe_night.png)
+![Completed globe, night side](Project5-AdvancedGLSL/raw/master/readme_files/globe_night.png)
 
 Figure 2. Completed globe renderer, night side.
 
@@ -78,7 +78,7 @@ In part 1, we render a globe with night lights on the unlit side; a specular map
 
 Open Globe\Globe\Globe.sln in Visual Studio and run it. You’ll see a globe with Phong lighting like the one in Figure 3. All changes you need to make will be in the fragment shader, fs.glsl.
 
-![Initial globe](HW5-Sandbox/raw/master/readme_files/globe_initial.png)
+![Initial globe](Project5-AdvancedGLSL/raw/master/readme_files/globe_initial.png)
 
 Figure 3. Initial globe with diffuse and specular lighting.
 
@@ -94,7 +94,7 @@ The base code shows an example of how to gamma correct the nighttime texture:
 
 Feel free to play with gamma correcting the night and day textures if you wish. Find values that you think look nice!
 
-![Day/Night without specular mapping](HW5-Sandbox/raw/master/readme_files/globe_nospecmap.png)
+![Day/Night without specular mapping](Project5-AdvancedGLSL/raw/master/readme_files/globe_nospecmap.png)
 
 Figure 4. Globe with night lights and day/night blending at dusk/dawn.
 
@@ -102,7 +102,7 @@ Figure 4. Globe with night lights and day/night blending at dusk/dawn.
 
 Our day/night color still shows specular highlights on landmasses, which should only be diffuse lit. Only the ocean should receive specular highlights. Use `u_EarthSpec` to determine if a fragment is on ocean or land, and only include the specular component if it is in ocean.
 
-![Day/Night with specular mapping](HW5-Sandbox/raw/master/readme_files/globe_specmap.png)
+![Day/Night with specular mapping](Project5-AdvancedGLSL/raw/master/readme_files/globe_specmap.png)
 
 Figure 5. Globe with specular map. Compare to Figure 4. Here, the specular component is not used when shading the land.
 
@@ -115,11 +115,11 @@ In night time, clouds should obscure city lights. Use `u_CloudTrans` and `mix` t
 Animate the clouds by offseting the `s` component of `v_Texcoord` by `u_time` when reading
 `u_Cloud` and `u_CloudTrans`.
 
-![Day with clouds](HW5-Sandbox/raw/master/readme_files/globe_daycloud.png)
+![Day with clouds](Project5-AdvancedGLSL/raw/master/readme_files/globe_daycloud.png)
 
 Figure 6. Clouds with day time shading.
 
-![Night with clouds](HW5-Sandbox/raw/master/readme_files/globe_nightcloud.png)
+![Night with clouds](Project5-AdvancedGLSL/raw/master/readme_files/globe_nightcloud.png)
 
 Figure 7. Clouds observing city nights on the dark side of the globe.
 
@@ -131,7 +131,7 @@ Add the appearance of mountains by perturbing the normal used for diffuse lighti
 
 Use `eastNorthUpToEyeCoordinates` to transform this normal to eye coordinates, normalize it, then use it for diffuse lighting the ground instead of the original normal.
 
-![Globe with bump mapping](HW5-Sandbox/raw/master/readme_files/globe_bumpmap.png)
+![Globe with bump mapping](Project5-AdvancedGLSL/raw/master/readme_files/globe_bumpmap.png)
 
 Figure 8. Bump mapping brings attention to mountains.
 
@@ -160,7 +160,7 @@ However, if you are ambitious or want better looking results, instructions for t
 
 The famous "Sponza" test scene file is included with part 2, and by default the base code will load `sponza.obj` and render the scene with only diffuse lighting. With SSAO, Sponza should look something like this:
 
-![Sponza, with SSAO](HW5-Sandbox/raw/master/readme_files/ao_sponza.png)
+![Sponza, with SSAO](Project5-AdvancedGLSL/raw/master/readme_files/ao_sponza.png)
 
 -------------------------------------------------------------------------------
 PART 2 WALKTHROUGH:
