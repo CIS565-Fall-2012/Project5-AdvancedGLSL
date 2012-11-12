@@ -37,13 +37,25 @@ void main(void)
     vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, normal);
     float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
     specular = pow(specular, 20.0);
-
-    float gammaCorrect = 1/1.8; //gamma correct by 1/1.8
-
+	   
     vec4 dayColor = texture2D(u_DayDiffuse, v_Texcoord);
-    vec4 nightColor = pow(texture2D(u_Night, v_Texcoord),gammaCorrect);    //apply gamma correction to nighttime texture
 
-    gl_FragColor = ((0.6 * diffuse) + (0.4 * specular)) * dayColor;
+    //apply gamma correction to nighttime texture
+	float gammaCorrect = 1/1.8;
+	vec4 nightColor = texture2D(u_Night, v_Texcoord);
+	nightColor.r = pow(nightColor.r, gammaCorrect);
+	nightColor.g = pow(nightColor.g, gammaCorrect);
+    nightColor.b = pow(nightColor.b, gammaCorrect);
+
+    float earthSpec = texture2D(u_EarthSpec, v_Texcoord).r;
+
+    if (diffuse > 0.1) {
+        gl_FragColor = ((0.6 * diffuse) + (0.4 * specular * earthSpec)) * dayColor;
+    } else if (diffuse > 0.0) {
+        gl_FragColor = mix(((0.6 * diffuse) + (0.4 * specular * earthSpec)) * dayColor, nightColor, 1-10*diffuse);
+    } else {
+        gl_FragColor = nightColor;
+    }
 }
 
 mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
