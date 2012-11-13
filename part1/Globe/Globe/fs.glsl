@@ -16,6 +16,7 @@ uniform sampler2D u_CloudTrans;
 uniform sampler2D u_EarthSpec;
 //Bump map
 uniform sampler2D u_Bump;
+vec2 u_bumpStep = vec2(1.0/1000, 1.0/500);
 
 uniform float u_time;
 uniform mat4 u_InvTrans;
@@ -29,7 +30,12 @@ mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 
 void main(void)
 {
-    vec3 normal = normalize(v_Normal);            // surface normal - normalized after rasterization
+	float top_bump = texture2D(u_Bump, vec2(v_Texcoord.s, v_Texcoord.t + u_bumpStep.t)).r;
+	float right_bump = texture2D(u_Bump, vec2(v_Texcoord.s + u_bumpStep.s, v_Texcoord.t)).r;
+	float center_bump = texture2D(u_Bump, v_Texcoord).r;
+	vec3 bumpNormalMC = normalize(vec3(center_bump - right_bump, center_bump - top_bump, 0.2));	
+
+    vec3 normal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * bumpNormalMC);
     vec3 eyeToPosition = normalize(v_Position);   // normalized eye-to-position vector in camera coordinates
 
     float diffuse = max(dot(u_CameraSpaceDirLight, normal), 0.0);
@@ -49,13 +55,26 @@ void main(void)
 
     float earthSpec = texture2D(u_EarthSpec, v_Texcoord).r;
 
-    if (diffuse > 0.1) {
-        gl_FragColor = ((0.6 * diffuse) + (0.4 * specular * earthSpec)) * dayColor;
-    } else if (diffuse > 0.0) {
-        gl_FragColor = mix(((0.6 * diffuse) + (0.4 * specular * earthSpec)) * dayColor, nightColor, 1-10*diffuse);
+	vec4 dayColor_cloud_blends = mix(texture2D(u_Cloud, v_Texcoord), 
+									((0.6 * diffuse) + (0.4 * specular * earthSpec)) * dayColor, 
+									texture2D(u_CloudTrans, v_Texcoord));
+	vec4 nightColor_cloud_blends = mix(vec4(0.0, 0.0, 0.0, 1.0),
+										nightColor,
+										texture2D(u_CloudTrans, v_Texcoord));
+
+	float light_normal_dot = max(dot(u_CameraSpaceDirLight, normalize(v_Normal)), 0.0);
+    if (light_normal_dot > 0.1) {
+        gl_FragColor = dayColor_cloud_blends;
+    } else if (light_normal_dot > 0.0) {
+        gl_FragColor = mix(nightColor_cloud_blends, dayColor_cloud_blends, 10.0*light_normal_dot);
     } else {
-        gl_FragColor = nightColor;
+        gl_FragColor = nightColor_cloud_blends;
     }
+
+	float rimFactor = dot(v_Normal, v_Position) + 1.0;
+	if (rimFactor > 0.0) {
+		gl_FragColor = clamp(gl_FragColor + vec4(rimFactor/4, rimFactor/2, rimFactor/2, 1), 0.0, 1.0);
+	}
 }
 
 mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
