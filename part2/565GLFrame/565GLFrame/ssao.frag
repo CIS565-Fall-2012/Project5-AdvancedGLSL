@@ -96,14 +96,45 @@ float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
 	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+	const vec3 position_diff = occluder_position - pt_position;
+	const float dist = length(position_diff);
+
+	// factor1: distance
+	float occlusion = 1.0 / (1.0 + dist);
+
+	// factor2: co-planar
+	occlusion *= 1 - abs(dot(normalize(pt_normal), normalize(occluder_normal)));
+
+	// factor3: incident angle
+	occlusion *= max(0.0, dot(normalize(pt_normal), normalize(position_diff)));
+	
+	return occlusion;
 }
 
 const float REGULAR_SAMPLE_STEP = 0.012f;
+#define SAMPLE_RECT_WIDTH 4 // even, indicates 4x4 samples 
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	float occlusion = 0.0;
+	const vec2 upperLeft 
+		= texcoord + vec2(-(SAMPLE_RECT_WIDTH-1)*0.5*REGULAR_SAMPLE_STEP, 
+						(SAMPLE_RECT_WIDTH-1)*0.5*REGULAR_SAMPLE_STEP);
+	vec2 offset, sample_texcoord;
+	for (int y = 0; y < SAMPLE_RECT_WIDTH; y++) {
+		offset.y = -REGULAR_SAMPLE_STEP * y;
+		for (int x = 0; x < SAMPLE_RECT_WIDTH; x++) {
+			offset.x = REGULAR_SAMPLE_STEP * x;
+            sample_texcoord = upperLeft + offset;
+
+			occlusion += gatherOcclusion(normal, 
+										position, 
+										sampleNrm(sample_texcoord), 
+										samplePos(sample_texcoord));
+		} // for x
+	} // for y
+
+	return occlusion / (SAMPLE_RECT_WIDTH*SAMPLE_RECT_WIDTH);
 }
 
 
