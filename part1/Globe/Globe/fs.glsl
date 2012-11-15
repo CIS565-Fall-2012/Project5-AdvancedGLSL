@@ -20,6 +20,10 @@ vec2 u_bumpStep = vec2(1.0/1000, 1.0/500);
 
 uniform float u_time;
 uniform mat4 u_InvTrans;
+uniform int u_renderType;
+// make sure that these numbers are matched to enum in Globe.cpp
+const int TEXTURE = 0; 
+const int ALTITUDE = 1;
 
 varying vec3 v_Normal;              // surface normal in camera coordinates
 varying vec2 v_Texcoord;
@@ -34,6 +38,23 @@ void main(void)
 	float right_bump = texture2D(u_Bump, vec2(v_Texcoord.s + u_bumpStep.s, v_Texcoord.t)).r;
 	float center_bump = texture2D(u_Bump, v_Texcoord).r;
 	vec3 bumpNormalMC = normalize(vec3(center_bump - right_bump, center_bump - top_bump, 0.2));	
+
+	if (u_renderType == ALTITUDE) {
+		const vec3 orange = vec3(1.0, 0.565, 0.0);
+		const vec3 red = vec3(1.0, 0.0, 0.0);
+		const vec3 green = vec3(0.0, 1.0, 0.0);
+		const vec3 blue = vec3(0.0, 0.0, 1.0);
+		if (center_bump < 0.0001) {
+			gl_FragColor = vec4(blue, 1.0);
+		} else if (center_bump > 0.99) {
+			gl_FragColor = vec4(red, 1.0);
+		} else if (center_bump >= 0.5) {
+			gl_FragColor = mix(vec4(orange, 1.0), vec4(red, 1.0), (1.0/-log(2*(center_bump-0.5))));
+		} else {
+			gl_FragColor = mix(vec4(green, 1.0), vec4(orange, 1.0), 1.0/-log(2*center_bump));
+		}
+		return;
+	} 
 
     vec3 normal = normalize(eastNorthUpToEyeCoordinates(v_positionMC, v_Normal) * bumpNormalMC);
     vec3 eyeToPosition = normalize(v_Position);   // normalized eye-to-position vector in camera coordinates
