@@ -146,14 +146,14 @@ void main(void)
 	//	gl_FragColor = mix(vec4(0), diffuseAndSpecular, cloudTransmittance.r);
 	//}
 
-	////--------------------------------------------------------------------------------------------------------------
-	////Rim Lighting
-	////--------------------------------------------------------------------------------------------------------------
-	//float rimFactor = dot(v_Normal, v_Position) + 1.0;
-	//if(rimFactor > 0)
-	//{
-	//	gl_FragColor += vec4(rimFactor / 4.0, rimFactor / 2.0, rimFactor / 2.0, 0.0);
-	//}
+	//--------------------------------------------------------------------------------------------------------------
+	//Rim Lighting
+	//--------------------------------------------------------------------------------------------------------------
+	float rimFactor = dot(v_Normal, v_Position) + 1.0;
+	if(rimFactor > 0)
+	{
+		gl_FragColor += vec4(rimFactor / 4.0, rimFactor / 2.0, rimFactor / 2.0, 0.0);
+	}
 }
 
 mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
