@@ -371,7 +371,8 @@ mat4x4 get_mesh_world() {
 	vec3 tilt(1.0f,0.0f,0.0f);
 	mat4 translate_mat = glm::translate(glm::vec3(0.0f,.5f,0.0f));
 	mat4 tilt_mat = glm::rotate(mat4(), 90.0f, tilt);
-	return tilt_mat * translate_mat;
+	mat4 scale_mat = glm::scale(glm::mat4(), glm::vec3(10.0f, 10.0f, 10.0f));
+	return tilt_mat * translate_mat * scale_mat;
 }
 
 
