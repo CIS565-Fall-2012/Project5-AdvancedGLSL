@@ -18,11 +18,13 @@ uniform sampler2D u_EarthSpec;
 uniform sampler2D u_Bump;
 
 uniform float u_time;
+uniform float u_toon;
 uniform mat4 u_InvTrans;
 
 varying vec3 v_Normal;              // surface normal in camera coordinates
 varying vec2 v_Texcoord;
 varying vec3 v_Position;            // position in camera coordinates
+varying vec3 v_viewMC;
 varying vec3 v_positionMC;          // position in model coordinates
 
 mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
@@ -32,7 +34,7 @@ void main(void)
     vec3 normal = normalize(v_Normal);            // surface normal - normalized after rasterization
     vec3 eyeToPosition = normalize(v_Position);   // normalized eye-to-position vector in camera coordinates
 	
-	float rim = dot( v_Normal, v_Position )+1;
+	float rim = dot( normal, v_Position )+1;
 	vec4 rimlight = vec4(rim/4, rim/3, rim/2, 0.0);
 
 	if( rim < 0 )
