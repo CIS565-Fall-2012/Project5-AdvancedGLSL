@@ -98,6 +98,10 @@ enum Display {
 	DISPLAY_TOTAL = 4
 }	;
 
+enum VertexShader {
+	VERTEX_SHADER_PASSTHROUGH = 0,
+	VERTEX_SHADER_PULSING = 1
+};
 
 char* loadFile(char *fname, GLint &fSize);
 void printShaderInfoLog(GLint shader);

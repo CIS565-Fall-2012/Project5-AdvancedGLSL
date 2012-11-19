@@ -110,6 +110,7 @@
   <ItemGroup>
     <None Include="pass.frag" />
     <None Include="pass.vert" />
+    <None Include="pulsing.vert" />
     <None Include="random.png" />
     <None Include="ssao.frag" />
     <None Include="ssao.vert" />

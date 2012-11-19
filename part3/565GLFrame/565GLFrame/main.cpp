@@ -144,6 +144,7 @@ GLuint FBO = 0;
 
 
 GLuint pass_prog;
+GLuint curr_prog;
 void initPass() {
 	Utility::shaders_t shaders = Utility::loadShaders("pass.vert", "pass.frag");
 
@@ -153,6 +154,20 @@ void initPass() {
 	glBindAttribLocation(pass_prog,mesh_attributes::NORMAL, "Normal");
 
 	Utility::attachAndLinkProgram(pass_prog,shaders);
+	
+	curr_prog = pass_prog;
+}
+
+GLuint pulsing_prog;
+void initPulsing() {
+	Utility::shaders_t shaders = Utility::loadShaders("pulsing.vert", "pass.frag");
+
+	pulsing_prog = glCreateProgram();
+
+	glBindAttribLocation(pulsing_prog,mesh_attributes::POSITION, "Position");
+	glBindAttribLocation(pulsing_prog,mesh_attributes::NORMAL, "Normal");
+
+	Utility::attachAndLinkProgram(pulsing_prog,shaders);
 	
 }
 
@@ -271,8 +286,8 @@ void initFBO(int w, int h) {
 	
 	// Instruct openGL that we won't bind a color texture with the currently binded FBO
 	glReadBuffer(GL_NONE);
-    GLint normal_loc = glGetFragDataLocation(pass_prog,"out_Normal");
-    GLint position_loc = glGetFragDataLocation(pass_prog,"out_Position");
+    GLint normal_loc = glGetFragDataLocation(curr_prog,"out_Normal");
+    GLint position_loc = glGetFragDataLocation(curr_prog,"out_Position");
     GLenum draws [2];
     draws[normal_loc] = GL_COLOR_ATTACHMENT0;
     draws[position_loc] = GL_COLOR_ATTACHMENT1;
@@ -378,11 +393,23 @@ mat4x4 get_mesh_world() {
 
 float FARP;
 float NEARP;
+enum VertexShader vertex_shader_type = VERTEX_SHADER_PASSTHROUGH;
+float time = 0.0f;
 void draw_mesh() {
     FARP = 100.0f;
 	NEARP = 1.0f;
 
-	glUseProgram(pass_prog);
+	switch (vertex_shader_type)
+	{
+	case VERTEX_SHADER_PASSTHROUGH:
+		curr_prog = pass_prog;
+		break;
+	case VERTEX_SHADER_PULSING:
+		curr_prog = pulsing_prog;
+		break;
+	};
+
+	glUseProgram(curr_prog);
 	
 
 	mat4 model = get_mesh_world();
@@ -390,11 +417,14 @@ void draw_mesh() {
 	mat4 persp = perspective(45.0f,(float)width/(float)height,NEARP,FARP);
 	mat4 inverse_transposed = transpose(inverse(view*model));
 
-    glUniform1f(glGetUniformLocation(pass_prog, "u_Far"), FARP);
-	glUniformMatrix4fv(glGetUniformLocation(pass_prog,"u_Model"),1,GL_FALSE,&model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(pass_prog,"u_View"),1,GL_FALSE,&view[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(pass_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(pass_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
+    glUniform1f(glGetUniformLocation(curr_prog, "u_Far"), FARP);
+	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Model"),1,GL_FALSE,&model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_View"),1,GL_FALSE,&view[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
+	glUniform1i(glGetUniformLocation(curr_prog, "u_VertexShaderType"), vertex_shader_type);
+	time += 0.1;
+	glUniform1f(glGetUniformLocation(curr_prog, "u_time"), time);
 
 	for(int i=0; i<draw_meshes.size(); i++){
 		glBindVertexArray(draw_meshes[i].vertex_array);
@@ -580,48 +610,28 @@ void motion(int x, int y)
 }
 
 void keyboard(unsigned char key, int x, int y) {
-    float tx = 0;
-    float tz = 0;
+	float tx = 0;
+	float tz = 0;
 	switch(key) {
 	case('w'):
-      tz = 0.1;
-	  break;
+		tz = 0.1;
+		break;
 	case('s'):
-      tz = -0.1;
-	  break;
+		tz = -0.1;
+		break;
 	case('d'):
-      tx = -0.1;
-	  break;
+		tx = -0.1;
+		break;
 	case('a'):
-      tx = 0.1;
-	  break;
+		tx = 0.1;
+		break;
 	case('1'):
-      occlusion_type = OCCLUSION_NONE;
-	  break;
+		// normal
+		vertex_shader_type = VERTEX_SHADER_PASSTHROUGH;
+		break;
 	case('2'):
-      occlusion_type = OCCLUSION_REGULAR_SAMPLES;
-	  break;
-	case('3'):
-      occlusion_type = OCCLUSION_POISSON_SS_SAMPLES;
-	  break;
-	case('4'):
-      occlusion_type = OCCLUSION_WORLD_SPACE_SAMPLES;
-	  break;
-	case('6'):
-      display_type = DISPLAY_DEPTH;
-	  break;
-	case('7'):
-      display_type = DISPLAY_NORMAL;
-	  break;
-	case('8'):
-      display_type = DISPLAY_POSITION;
-	  break;
-	case('9'):
-      display_type = DISPLAY_OCCLUSION;
-	  break;
-	case('0'):
-      display_type = DISPLAY_TOTAL;
-	  break;
+		vertex_shader_type = VERTEX_SHADER_PULSING;
+		break;
 }
 
 	if (abs(tx) > 0 ||  abs(tz) > 0 ) {
@@ -679,6 +689,7 @@ int main (int argc, char* argv[])
     initNoise();
     initSSAO();
     initPass();
+	initPulsing();
     initFBO(width,height);
     init();
 	initMesh();
