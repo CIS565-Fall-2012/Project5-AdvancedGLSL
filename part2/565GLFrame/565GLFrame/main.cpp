@@ -142,8 +142,9 @@ GLuint normalTexture = 0;
 GLuint positionTexture = 0;
 GLuint FBO = 0;
 
-
+GLuint current_prog;
 GLuint pass_prog;
+GLuint melt_prog;
 void initPass() {
 	Utility::shaders_t shaders = Utility::loadShaders("pass.vert", "pass.frag");
 
@@ -154,6 +155,15 @@ void initPass() {
 
 	Utility::attachAndLinkProgram(pass_prog,shaders);
 	
+	shaders = Utility::loadShaders("melt.vert", "pass.frag");
+
+	melt_prog = glCreateProgram();
+
+	glBindAttribLocation(melt_prog,mesh_attributes::POSITION, "Position");
+	glBindAttribLocation(melt_prog,mesh_attributes::NORMAL, "Normal");
+
+	Utility::attachAndLinkProgram(melt_prog,shaders);
+	current_prog = pass_prog;
 }
 
 GLuint ssao_prog;
@@ -352,6 +362,10 @@ Camera::adjust(float dx, // look left right
         pos += mag;	
 	}
 
+	if (abs(ty) > 0) {
+        z += ty;
+	}
+
 	if (abs(tz) > 0) {
 		vec3 dir = glm::gtx::rotate_vector::rotate(start_dir,rx,up);
         vec2 dir2(dir.x,dir.y);
@@ -377,18 +391,26 @@ mat4x4 get_mesh_world() {
 
 float FARP;
 float NEARP;
+
+float time = 0;
+bool customVert = false;
+
 void draw_mesh() {
     FARP = 100.0f;
 	NEARP = 1.0f;
 
-	glUseProgram(pass_prog);
+	glUseProgram(current_prog);
 	
 
 	mat4 model = get_mesh_world();
 	mat4 view = cam.get_view();
 	mat4 persp = perspective(45.0f,(float)width/(float)height,NEARP,FARP);
 	mat4 inverse_transposed = transpose(inverse(view*model));
+	
+	time += 0.01;
 
+	if( customVert )
+		glUniform1f(glGetUniformLocation(current_prog, "u_time"), time);
     glUniform1f(glGetUniformLocation(pass_prog, "u_Far"), FARP);
 	glUniformMatrix4fv(glGetUniformLocation(pass_prog,"u_Model"),1,GL_FALSE,&model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(pass_prog,"u_View"),1,GL_FALSE,&view[0][0]);
@@ -580,8 +602,15 @@ void motion(int x, int y)
 
 void keyboard(unsigned char key, int x, int y) {
     float tx = 0;
+    float ty = 0;
     float tz = 0;
 	switch(key) {
+		case('q'):
+		  ty = 0.1;
+		  break;
+		case('z'):
+		  ty = -0.1;
+		  break;
 		case('w'):
 		  tz = 0.1;
 		  break;
@@ -593,6 +622,24 @@ void keyboard(unsigned char key, int x, int y) {
 		  break;
 		case('a'):
 		  tx = 0.1;
+		  break;
+		case('Q'):
+		  ty = 0.5;
+		  break;
+		case('Z'):
+		  ty = -0.5;
+		  break;
+		case('W'):
+		  tz = 0.5;
+		  break;
+		case('S'):
+		  tz = -0.5;
+		  break;
+		case('D'):
+		  tx = -0.5;
+		  break;
+		case('A'):
+		  tx = 0.5;
 		  break;
 		case('1'):
 		  occlusion_type = OCCLUSION_NONE;
@@ -621,10 +668,18 @@ void keyboard(unsigned char key, int x, int y) {
 		case('0'):
 		  display_type = DISPLAY_TOTAL;
 		  break;
+		case('m'):
+			current_prog = melt_prog;
+			customVert = true;
+			break;
+		case('p'):
+			current_prog = pass_prog;
+			customVert = false;
+			break;
 	}
 
-	if (abs(tx) > 0 ||  abs(tz) > 0 ) {
-		cam.adjust(0,0,0,tx,0,tz);
+	if (abs(tx) > 0 || abs(ty) > 0 || abs(tz) > 0 ) {
+		cam.adjust(0,0,0,tx,ty,tz);
 	}
 }
 
