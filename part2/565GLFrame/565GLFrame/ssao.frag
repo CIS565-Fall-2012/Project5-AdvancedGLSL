@@ -47,6 +47,10 @@ uniform float zerothresh = 1.0f;
 uniform float falloff = 0.1f;
 
 
+
+
+
+
 /////////////////////////////////////
 //				UTILITY FUNCTIONS
 /////////////////////////////////////
@@ -90,20 +94,60 @@ float getRandomScalar(vec2 texcoords) {
 /// BEGIN TODO: START HERE
 //////////////////////////////////////////////
 
+
 //Estimate occlusion based on a point and a sampled occluder
 //Design this function based on specified constraints
 float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
 	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+
+	float distanceBTWPtOcc = length(occluder_position - pt_position );
+	float overHead = max(0.0,dot( pt_normal, normalize( occluder_position - pt_position ) ));
+	float coplanarTest = 1.0 - abs( dot( pt_normal, occluder_normal ) );
+
+	float occ = step(falloff,distanceBTWPtOcc) * overHead * coplanarTest * (1.0/(1.0 + distanceBTWPtOcc * distanceBTWPtOcc)) ;
+	return occ;///IMPLEMENT THIS
 }
 
-const float REGULAR_SAMPLE_STEP = 0.012f;
+
+//const float REGULAR_SAMPLE_STEP = 0.012f;
+const float REGULAR_SAMPLE_STEP = 0.7f;
+#define SAMPLES 16
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+
+//	vec3 pSphere[16] = vec3[](vec3(0.53812504, 0.18565957, -0.43192),vec3(0.13790712, 0.24864247, 0.44301823),vec3(0.33715037, 0.56794053, -0.005789503),vec3(-0.6999805, -0.04511441, -0.0019965635),vec3(0.06896307, -0.15983082, -0.85477847),vec3(0.056099437, 0.006954967, -0.1843352),vec3(-0.014653638, 0.14027752, 0.0762037),vec3(0.010019933, -0.1924225, -0.034443386),vec3(-0.35775623, -0.5301969, -0.43581226),vec3(-0.3169221, 0.106360726, 0.015860917),vec3(0.010350345, -0.58698344, 0.0046293875),vec3(-0.08972908, -0.49408212, 0.3287904),vec3(0.7119986, -0.0154690035, -0.09183723),vec3(-0.053382345, 0.059675813, -0.5411899),vec3(0.035267662, -0.063188605, 0.54602677),vec3(-0.47761092, 0.2847911, -0.0271716));
+//	float accumulatedOcclusion = 0.0;
+
+	float accumulatedOcclusion = 0.0;
+
+	for( int i = -2; i < 2; i ++ )
+		{
+			
+			
+				for( int j = -2; j < 2; j ++ )
+				{
+					
+					
+					
+						vec3 ray = REGULAR_SAMPLE_STEP*reflect(vec3(i,j,0),getRandomNormal(texcoord));
+						vec3 occluder_position = position + sign(dot(ray,normal) )*ray;
+						vec3 occluder_normal = getRandomNormal(occluder_position.xy);
+
+						accumulatedOcclusion+=gatherOcclusion(normal,position,occluder_normal,occluder_position);
+
+					
+				}
+			
+		}
+
+
+
+
+    return accumulatedOcclusion / 16.0; //IMPLEMENT THIS
+
 }
 
 
