@@ -95,15 +95,35 @@ float getRandomScalar(vec2 texcoords) {
 float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
-	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+	vec3 occluder_position) 
+{
+	float overheadTerm = dot( pt_normal, normalize( occluder_position - pt_position ) );
+	float distanceTerm = 1.0 / ( 1.0 + length( occluder_position - pt_position ) );
+	float planarlyTerm = 1.0 - abs( dot( pt_normal, occluder_normal ) );
+
+	// From the gamedev link with crytek screenshots
+	return max( 0.0, overheadTerm ) * distanceTerm * planarlyTerm; 
 }
 
 const float REGULAR_SAMPLE_STEP = 0.012f;
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	float accumOcclude = 0;
+	for( int i = -2; i <= 2; i ++ )
+	{
+		if( i != 0 )
+		{
+			for( int j = -2; j <= 2; j ++ )
+			{
+				if( j != 0 )
+				{
+					
+				}
+			}
+		}
+	}
+	return accumOcclude / 16.0; //IMPLEMENT THIS
 }
 
 

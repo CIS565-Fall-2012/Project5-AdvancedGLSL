@@ -582,46 +582,46 @@ void keyboard(unsigned char key, int x, int y) {
     float tx = 0;
     float tz = 0;
 	switch(key) {
-	case('w'):
-      tz = 0.1;
-	  break;
-	case('s'):
-      tz = -0.1;
-	  break;
-	case('d'):
-      tx = -0.1;
-	  break;
-	case('a'):
-      tx = 0.1;
-	  break;
-	case('1'):
-      occlusion_type = OCCLUSION_NONE;
-	  break;
-	case('2'):
-      occlusion_type = OCCLUSION_REGULAR_SAMPLES;
-	  break;
-	case('3'):
-      occlusion_type = OCCLUSION_POISSON_SS_SAMPLES;
-	  break;
-	case('4'):
-      occlusion_type = OCCLUSION_WORLD_SPACE_SAMPLES;
-	  break;
-	case('6'):
-      display_type = DISPLAY_DEPTH;
-	  break;
-	case('7'):
-      display_type = DISPLAY_NORMAL;
-	  break;
-	case('8'):
-      display_type = DISPLAY_POSITION;
-	  break;
-	case('9'):
-      display_type = DISPLAY_OCCLUSION;
-	  break;
-	case('0'):
-      display_type = DISPLAY_TOTAL;
-	  break;
-}
+		case('w'):
+		  tz = 0.1;
+		  break;
+		case('s'):
+		  tz = -0.1;
+		  break;
+		case('d'):
+		  tx = -0.1;
+		  break;
+		case('a'):
+		  tx = 0.1;
+		  break;
+		case('1'):
+		  occlusion_type = OCCLUSION_NONE;
+		  break;
+		case('2'):
+		  occlusion_type = OCCLUSION_REGULAR_SAMPLES;
+		  break;
+		case('3'):
+		  occlusion_type = OCCLUSION_POISSON_SS_SAMPLES;
+		  break;
+		case('4'):
+		  occlusion_type = OCCLUSION_WORLD_SPACE_SAMPLES;
+		  break;
+		case('6'):
+		  display_type = DISPLAY_DEPTH;
+		  break;
+		case('7'):
+		  display_type = DISPLAY_NORMAL;
+		  break;
+		case('8'):
+		  display_type = DISPLAY_POSITION;
+		  break;
+		case('9'):
+		  display_type = DISPLAY_OCCLUSION;
+		  break;
+		case('0'):
+		  display_type = DISPLAY_TOTAL;
+		  break;
+	}
 
 	if (abs(tx) > 0 ||  abs(tz) > 0 ) {
 		cam.adjust(0,0,0,tx,0,tz);
