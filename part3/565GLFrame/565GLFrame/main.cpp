@@ -526,8 +526,8 @@ char title[1024];
 char disp[1024];
 char occl[1024];
 void updateTitle() {
-    updateDisplayText(disp);
-    updateOcclusionText(occl);
+    //updateDisplayText(disp);
+    //updateOcclusionText(occl);
 //calculate the frames per second
 	frame++;
 
@@ -549,12 +549,12 @@ void updateTitle() {
 void display(void)
 {
 	// clear the screen
-    bindFBO();
+    //bindFBO();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	draw_mesh();
 
-    setTextures();
-	draw_quad();
+    //setTextures();
+	//draw_quad();
 
     updateTitle();
 
