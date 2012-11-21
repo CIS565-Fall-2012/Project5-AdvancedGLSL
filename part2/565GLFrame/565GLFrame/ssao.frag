@@ -96,14 +96,33 @@ float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
 	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+
+	float dist=distance(pt_position, occluder_position);
+	vec3 dir= occluder_position-pt_position;
+	float occ= max(0.0,dot(pt_normal,dir))* (1.0/(1.0 + dist));
+
+	return occ;///IMPLEMENT THIS
 }
 
-const float REGULAR_SAMPLE_STEP = 0.012f;
+const float REGULAR_SAMPLE_STEP = 0.0004f;
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+
+	float final_gather;
+
+	for ( int i=-10; i<10 ;++i)
+	{
+		for( int j=-10; j<10 ;++j)
+		{
+			vec2 sample_val=vec2(texcoord.x+REGULAR_SAMPLE_STEP*i, texcoord.y+REGULAR_SAMPLE_STEP*j);
+			vec3 sample_normal=getRandomNormal(sample_val);
+			vec3 sample_pos=samplePos(sample_val);
+			final_gather+= gatherOcclusion(normal,position,sample_normal,sample_pos);
+		}
+	}
+	//float gather= gatherOcclusion(
+	return final_gather/300; //IMPLEMENT THIS
 }
 
 

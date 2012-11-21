@@ -8,6 +8,7 @@
 #include "obj.h"
 
 obj* objmesh;
+int counter=0;
 
 typedef struct {
 	std::vector<glm::vec3> vertices;

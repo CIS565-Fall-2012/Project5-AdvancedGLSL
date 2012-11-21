@@ -39,6 +39,9 @@
     <None Include="random.png">
       <Filter>Resources</Filter>
     </None>
+    <None Include="pass2.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
