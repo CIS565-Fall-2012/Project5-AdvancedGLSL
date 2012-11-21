@@ -12,6 +12,7 @@
 *.a
 
 # Visual Studio Stuff
+*.sdf
 *.suo
 *.pdb
 *ipch/

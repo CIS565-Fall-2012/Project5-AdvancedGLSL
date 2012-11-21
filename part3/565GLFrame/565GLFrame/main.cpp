@@ -422,7 +422,6 @@ void draw_mesh() {
 	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_View"),1,GL_FALSE,&view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
-	glUniform1i(glGetUniformLocation(curr_prog, "u_VertexShaderType"), vertex_shader_type);
 	time += 0.1;
 	glUniform1f(glGetUniformLocation(curr_prog, "u_time"), time);
 
