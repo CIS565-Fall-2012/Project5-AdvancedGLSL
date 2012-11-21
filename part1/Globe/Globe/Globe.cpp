@@ -42,6 +42,12 @@ static const int NUM_LONGITUDE_PTS = LONGITUDE_DIVISIONS + 1;
 static const int NUM_LATITUDE_PTS = LATITUDE_DIVISIONS + 1;
 static const float RADIUS = 1;
 
+enum RenderType {
+	TEXTURE,
+	ALTITUDE
+};
+int renderType = TEXTURE;
+
 //r theta phi
 vec3 computeSpherical(vec2 uv, float radius) {
    vec3 out;
@@ -274,6 +280,7 @@ void display(void)
 	glUniformMatrix4fv(glGetUniformLocation(current_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(current_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
 	glUniform1f(glGetUniformLocation(current_prog,"u_time"), time);
+	glUniform1i(glGetUniformLocation(current_prog,"u_renderType"), renderType);
 
 	glDrawElements(GL_TRIANGLES, current_mesh.num_indices, GL_UNSIGNED_SHORT,0);
 
@@ -336,6 +343,12 @@ void keyboard(unsigned char key, int x, int y) {
 	   case '-':
            slowDownRotation();
 		   break;	
+	   case '1':
+		   renderType = TEXTURE;
+		   break;
+	   case '2':
+		   renderType = ALTITUDE;
+		   break;
 	}
 }
 
