@@ -93,6 +93,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="fs.glsl" />
+    <None Include="moonVS.glsl" />
+    <None Include="moonFS.glsl" />
     <None Include="vs.glsl" />
     <None Include="earthbump1k.jpg" />
     <None Include="earthcloudmap.jpg" />

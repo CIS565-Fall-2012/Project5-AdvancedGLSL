@@ -1,0 +1,83 @@
+** Begin
+
+** Others
+center: 0 40 0 extents: 38 32 2
+center: 0 -40 0 extents: 38 32 2
+center: -46 0 0 extents: 38 32 2
+center: -46 40 0 extents: 20 20 20
+center: -46 -40 0 extents: 20 20 20
+
+** Pavilion
+center: 0 0 0 extents: 38 32 2
+center: 0 0 2.0 extents: 1 1 1
+center: 0 0 1.25 extents: 2 2 0.5
+center: 7 3 2 extents: 2 2 2
+center: 7 -3 2 extents: 2 2 2
+
+** Top Building
+center: -1 9 1 extents: 8 8 2
+center: -1 9 1 extents: 6 6 3
+center: -1 9 1 extents: 5 5 4
+center: -1 9 1 extents: 4 4 5
+center: -1 9 1 extents: 3 3 6
+center: -1 9 1 extents: 2 2 16
+center: -1 9 1 extents: 1 1 17
+
+
+** Bottom Building
+center: -1 -9 1 extents: 8 8 2
+center: -1 -9 4 extents: 4 4 4
+center: -1 -9 7 extents: 6 6 2
+
+** Main Building
+center: -12 0 1 extents: 8 8 2
+** Base Corners
+center: -14 2 3 extents: 2 2 2
+center: -14 -2 3 extents: 2 2 2
+center: -10 2 3 extents: 2 2 2
+center: -10 -2 3 extents: 2 2 2
+** Large Block
+center: -12 0 5 extents: 4 4 4
+** Tucked In
+center: -12 2 7 extents: 2 2 2
+center: -12 -2 7 extents: 2 2 2
+center: -14 0 7 extents: 2 2 2
+center: -10 0 7 extents: 2 2 2
+** Stack one
+center: -13 -1 9 extents: 2 2 2
+center: -11 1 9 extents: 2 2 2
+** Stack one
+center: -13 1 11 extents: 2 2 2
+center: -11 -1 11 extents: 2 2 2
+** Top
+center: -12 0 12.5 extents: 2 2 1
+center: -12 0 13.5 extents: 1 1 1
+
+** Bottom Left
+center: -12 -9 1 extents: 8 8 2
+** Right base
+center: -9.5 -10.5 2.5 extents: 3 5 1
+center: -10 -10 6 extents: 2 4 6
+center: -8.75 -9 6 extents: 0.5 1 5
+center: -8.75 -11 6 extents: 0.5 1 5
+** Left Base
+center: -14.5 -10.5 2.5 extents: 3 5 1
+center: -14 -10 6 extents: 2 4 6
+** Top
+center: -12 -9.5 10 extents: 4 5 2
+** Flourish
+center: -12 -6.5 10 extents: 4 1 1
+
+** Top Left
+center: -12 9 1 extents: 8 8 2
+** left tower
+center: -12 11.5 4.5 extents: 6 3 5
+center: -12 11 10 extents: 6 2 6
+** right tower
+center: -12.5 7 10.5 extents: 5 2 9
+center: -12.5 5 11.5 extents: 2 2 5
+center: -13.5 7 4 extents: 3 2 4
+** bridges
+center: -13.5 9 5 extents: 1 2 2
+center: -10.5 9 7 extents: 1 2 2
+center: -13.5 9 9 extents: 1 2 2
