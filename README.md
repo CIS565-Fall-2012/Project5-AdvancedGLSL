@@ -1,4 +1,24 @@
 -------------------------------------------------------------------------------
+Submitted Features
+-------------------------------------------------------------------------------
+In Part 1, I implemented:
+    Bump mapped terrain
+    Rim lighting to simulate atmosphere
+    Nighttime lights on the dark side of the globe
+    Specular mapping
+    Moving clouds
+	
+In part 2: Ambient Occlusion with regular grid
+
+In Part 3: Morphing in sphere and Vertex pulsing/Bulge
+
+
+-------------------------------------------------------------------------------
+Blog
+-------------------------------------------------------------------------------
+http://advancedglsl.blogspot.com/
+
+-------------------------------------------------------------------------------
 CIS565: Project 5: Advanced GLSL
 -------------------------------------------------------------------------------
 Fall 2012
