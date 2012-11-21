@@ -11,7 +11,9 @@ In Part 1, I implemented:
 In part 2: Ambient Occlusion with regular grid
 
 In Part 3: Morphing in sphere and Vertex pulsing/Bulge
-
+To run part 3:
+Press 'b' to see bulge effects
+Press 'm' to see morphing effects
 
 -------------------------------------------------------------------------------
 Blog
