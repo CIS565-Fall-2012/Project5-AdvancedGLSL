@@ -18,3 +18,5 @@ In addition to these features I have implemented parallax occlusion mapping in a
 I have also implemented SSAO with a uniform sampler and a poisson disk sampler (again toggle-able).
 
 Finally I have implemented two vertex shaders with interesting effects. The first is a melting effect where the model gradually sinks into a 2D puddle at the bottom of the screen. The second is a blip effect where the model is bulged out from the y-axis along the x and z axes in a small blip that moves up and down in time.
+
+Blog: http://liamboone.blogspot.com/2012/11/project-5-more-shaders.html
