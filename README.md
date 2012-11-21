@@ -37,7 +37,7 @@ PART 2: Screen-Space Ambient Occlusion
 - Basic
 * regular sample based approach
 
-![regular sample based SSAO](Project5-AdvancedGLSL/raw/master/readme_files/altitude_shading.png)
+![regular sample based SSAO](Project5-AdvancedGLSL/raw/master/readme_files/ssao_sponza.png)
 
 Figure 1. regular sample based SSAO.
 
