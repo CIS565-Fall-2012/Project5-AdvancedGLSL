@@ -52,5 +52,11 @@
     <None Include="vs.glsl">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="moonFS.glsl">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="moonVS.glsl">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

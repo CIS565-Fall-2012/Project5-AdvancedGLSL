@@ -15,7 +15,7 @@
 #define	DISPLAY_OCCLUSION 3
 #define	DISPLAY_TOTAL 4
 
-
+#define PI 3.1415926
 /////////////////////////////////////
 // Uniforms, Attributes, and Outputs
 ////////////////////////////////////
@@ -96,14 +96,44 @@ float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
 	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+
+	float result=0.0;
+    
+	vec3 v=occluder_position-pt_position;
+	float dist=length(v)/falloff;
+	result=max(dot(v,pt_normal),0.0)*(1.0/ (1.0+dist));
+	return result;
+	//return -1.0f;///IMPLEMENT THIS
 }
 
 const float REGULAR_SAMPLE_STEP = 0.012f;
+const int KERNEL_WIDTH = 4; 
+
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+
+	float accum = 0.0;
+	vec3 sampleNormal = vec3(0.0);
+	vec3 samplePosition = vec3(0.0);
+
+	vec2 firstSample = texcoord -vec2 (1.5) * REGULAR_SAMPLE_STEP;
+
+	for (int i = 0; i < KERNEL_WIDTH; ++i)
+	{
+		for (int j = 0; j < KERNEL_WIDTH; ++j)
+		{
+			vec2 sampleTexCoord = firstSample + vec2( float(i) * REGULAR_SAMPLE_STEP,float(j) * REGULAR_SAMPLE_STEP);
+			samplePosition = samplePos(sampleTexCoord);
+			sampleNormal = sampleNrm(sampleTexCoord);
+			float sample_exp_depth = texture(u_Depthtex, sampleTexCoord).r;
+			float sample_lin_depth = linearizeDepth(sample_exp_depth,u_Near,u_Far);
+			if ((sample_lin_depth < 0.99f)&&(sample_lin_depth > 0.01f) )
+			accum += gatherOcclusion(normal,position,sampleNormal,samplePosition);
+		}
+	}	
+
+	return accum / float(KERNEL_WIDTH *KERNEL_WIDTH); //IMPLEMENT THIS
 }
 
 
@@ -132,7 +162,28 @@ const float SS_RADIUS = 0.02f;
 float occlusionWithPoissonSSSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+
+	float accum = 0.0;
+	vec3 sampleNormal = vec3(0.0);
+	vec3 samplePosition = vec3(0.0);
+
+	float randomAngle=getRandomScalar(texcoord) *2*PI;
+	mat2 rotationMat= mat2(cos(randomAngle),sin(randomAngle),-sin(randomAngle),cos(randomAngle));
+
+	for (int i = 0; i < NUM_SS_SAMPLES; ++i)
+	{
+	
+		vec2 sampleTexCoord = texcoord +SS_RADIUS * rotationMat*poissonDisk[i];
+		samplePosition = samplePos(sampleTexCoord);
+		sampleNormal = sampleNrm(sampleTexCoord);
+		float sample_exp_depth = texture(u_Depthtex, sampleTexCoord).r;
+		float sample_lin_depth = linearizeDepth(sample_exp_depth,u_Near,u_Far);
+		if ((sample_lin_depth < 0.99f)&&(sample_lin_depth > 0.01f) )
+		accum += gatherOcclusion(normal,position,sampleNormal,samplePosition);
+
+	}	
+
+	return accum / NUM_SS_SAMPLES; //IMPLEMENT THIS
 }
 
 
@@ -162,7 +213,35 @@ const float SPHERE_RADIUS = 0.3f;
 float occlusionWithWorldSpaceSamples(vec2 texcoord,
 	vec3 position,
 	vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	
+	float accum = 0.0;
+	vec3 sampleNormal = vec3(0.0);
+	vec3 samplePosition = vec3(0.0);
+
+	vec3 randomUnit = getRandomNormal(texcoord);
+
+	vec3 samplePoint;
+	for (int i = 0; i < NUM_WS_SAMPLES; ++i)
+	{
+	    samplePoint=reflect(poissonSphere[i],randomUnit);
+		vec3 direction=normalize(samplePoint-position);
+		if(dot(direction,normal)<0)
+			samplePoint=reflect(samplePoint,normal);
+		vec4 samplePoint4=vec4(position+SPHERE_RADIUS*samplePoint,1.0);
+		samplePoint4= u_Persp * samplePoint4;
+		samplePoint4= (samplePoint4/samplePoint4.w)/2.0+0.5;
+
+		vec2 sampleTexCoord =samplePoint4.xy;
+		samplePosition = samplePos(sampleTexCoord);
+		sampleNormal = sampleNrm(sampleTexCoord);
+		float sample_exp_depth = texture(u_Depthtex, sampleTexCoord).r;
+		float sample_lin_depth = linearizeDepth(sample_exp_depth,u_Near,u_Far);
+		if ((sample_lin_depth < 0.99f)&&(sample_lin_depth > 0.01f) )
+		accum += gatherOcclusion(normal,position,sampleNormal,samplePosition);
+
+	}	
+
+	return accum / NUM_SS_SAMPLES; //IMPLEMENT THIS
 }
 
 //////////////////////////////////////
