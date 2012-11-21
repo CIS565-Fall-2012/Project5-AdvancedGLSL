@@ -52,5 +52,6 @@
     <None Include="vs.glsl">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="night.glsl" />
   </ItemGroup>
 </Project>

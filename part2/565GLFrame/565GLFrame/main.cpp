@@ -144,15 +144,22 @@ GLuint FBO = 0;
 
 
 GLuint pass_prog;
+GLuint pass_prog2;
 void initPass() {
 	Utility::shaders_t shaders = Utility::loadShaders("pass.vert", "pass.frag");
+	Utility::shaders_t shadersz = Utility::loadShaders("pass2.vert", "pass.frag");
 
 	pass_prog = glCreateProgram();
+	pass_prog2= glCreateProgram();
 
 	glBindAttribLocation(pass_prog,mesh_attributes::POSITION, "Position");
 	glBindAttribLocation(pass_prog,mesh_attributes::NORMAL, "Normal");
 
+	glBindAttribLocation(pass_prog2,mesh_attributes::POSITION, "Position");
+	glBindAttribLocation(pass_prog2,mesh_attributes::NORMAL, "Normal");
+
 	Utility::attachAndLinkProgram(pass_prog,shaders);
+	Utility::attachAndLinkProgram(pass_prog2,shadersz);
 	
 }
 
@@ -378,12 +385,18 @@ mat4x4 get_mesh_world() {
 float FARP;
 float NEARP;
 void draw_mesh() {
-    FARP = 100.0f;
+    FARP = 1000.0f;
 	NEARP = 1.0f;
+	counter++;
 
-	glUseProgram(pass_prog);
-	
-
+	if(counter%72<=60 )
+	{
+	    glUseProgram(pass_prog);
+	}
+	else
+	{
+		glUseProgram(pass_prog2);
+	}
 	mat4 model = get_mesh_world();
 	mat4 view = cam.get_view();
 	mat4 persp = perspective(45.0f,(float)width/(float)height,NEARP,FARP);
@@ -583,16 +596,16 @@ void keyboard(unsigned char key, int x, int y) {
     float tz = 0;
 	switch(key) {
 	case('w'):
-      tz = 0.1;
+      tz = 1;
 	  break;
 	case('s'):
-      tz = -0.1;
+      tz = -1;
 	  break;
 	case('d'):
-      tx = -0.1;
+      tx = -1;
 	  break;
 	case('a'):
-      tx = 0.1;
+      tx = 1;
 	  break;
 	case('1'):
       occlusion_type = OCCLUSION_NONE;
@@ -601,10 +614,10 @@ void keyboard(unsigned char key, int x, int y) {
       occlusion_type = OCCLUSION_REGULAR_SAMPLES;
 	  break;
 	case('3'):
-      occlusion_type = OCCLUSION_POISSON_SS_SAMPLES;
+      glUseProgram(pass_prog2);
 	  break;
 	case('4'):
-      occlusion_type = OCCLUSION_WORLD_SPACE_SAMPLES;
+      glUseProgram(pass_prog);
 	  break;
 	case('6'):
       display_type = DISPLAY_DEPTH;

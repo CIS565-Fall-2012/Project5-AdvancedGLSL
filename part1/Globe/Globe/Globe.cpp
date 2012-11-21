@@ -321,7 +321,7 @@ void setGlobeShader() {
     glUniform1i(glGetUniformLocation(current_prog, "u_CloudTrans"),3);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, earthspec_tex);
-    glUniform1i(glGetUniformLocation(current_prog, "u_EarthSpec"),4);
+    glUniform1i(glGetUniformLocation(current_prog, "u_EarthSpec"),4); 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, disp_tex);
     glUniform1i(glGetUniformLocation(current_prog, "u_Bump"),5);

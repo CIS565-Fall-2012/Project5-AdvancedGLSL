@@ -7,5 +7,6 @@ out vec2 fs_Texcoord;
 
 void main() {
 	fs_Texcoord = Texcoord;
+
 	gl_Position = vec4(Position,1.0f);
 }
