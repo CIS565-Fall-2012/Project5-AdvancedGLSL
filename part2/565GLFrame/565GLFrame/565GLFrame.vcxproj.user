@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>mesh=C:\Users\Chinki\Documents\GitHub\Project5-AdvancedGLSL\part2\565GLFrame\sponza.obj</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>mesh=$(ProjectDir)sponza.obj</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
