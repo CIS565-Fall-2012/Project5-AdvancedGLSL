@@ -12,6 +12,7 @@
 *.a
 
 # Visual Studio Stuff
+*.opensdf
 *.sdf
 *.suo
 *.pdb
