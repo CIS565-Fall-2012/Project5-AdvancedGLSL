@@ -145,6 +145,8 @@ GLuint FBO = 0;
 GLuint current_prog;
 GLuint pass_prog;
 GLuint melt_prog;
+GLuint blip_prog;
+
 void initPass() {
 	Utility::shaders_t shaders = Utility::loadShaders("pass.vert", "pass.frag");
 
@@ -163,6 +165,15 @@ void initPass() {
 	glBindAttribLocation(melt_prog,mesh_attributes::NORMAL, "Normal");
 
 	Utility::attachAndLinkProgram(melt_prog,shaders);
+
+	shaders = Utility::loadShaders("blip.vert", "pass.frag");
+
+	blip_prog = glCreateProgram();
+
+	glBindAttribLocation(blip_prog,mesh_attributes::POSITION, "Position");
+	glBindAttribLocation(blip_prog,mesh_attributes::NORMAL, "Normal");
+
+	Utility::attachAndLinkProgram(blip_prog,shaders);
 	current_prog = pass_prog;
 }
 
@@ -407,7 +418,6 @@ void draw_mesh() {
 	mat4 persp = perspective(45.0f,(float)width/(float)height,NEARP,FARP);
 	mat4 inverse_transposed = transpose(inverse(view*model));
 	
-	time += 0.01;
 
 	if( customVert )
 		glUniform1f(glGetUniformLocation(current_prog, "u_time"), time);
@@ -424,6 +434,7 @@ void draw_mesh() {
 	}
 	glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+	time += 0.01;
 }
 
 
@@ -675,6 +686,10 @@ void keyboard(unsigned char key, int x, int y) {
 		case('p'):
 			current_prog = pass_prog;
 			customVert = false;
+			break;
+		case('b'):
+			current_prog = blip_prog;
+			customVert = true;
 			break;
 	}
 

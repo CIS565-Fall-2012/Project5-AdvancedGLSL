@@ -99,6 +99,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="obj.cpp" />
     <ClCompile Include="objloader.cpp" />
+    <None Include="blip.vert" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
