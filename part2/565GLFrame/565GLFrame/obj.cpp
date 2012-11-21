@@ -4,6 +4,7 @@
 #include "obj.h"
 #include <iostream>
 #include <limits>
+#include "glm/gtc/matrix_transform.hpp"
 
 #define EPSILON std::numeric_limits<double>::epsilon()
 
@@ -41,18 +42,31 @@ void obj::buildVBOs(){
 	vector<float> NBOvec;
 	vector<int> IBOvec;
 	int index = 0;
-	bool genNormals = true;
+
+	glm::mat4 transform = getTransform();
+	for (int i=0; i<points.size(); ++i)
+		points[i] = transform*points[i];
+
+	bool genNormals = false;
 	if(faces.size()!=facenormals.size()){
 		genNormals = true;
 	}
+
+	if (!genNormals)
+		for (int i=0; i<normals.size(); ++i)
+			smoothNormals.push_back(glm::vec4(0.0));
+	else
+		for (int i=0; i<points.size(); ++i)
+			smoothNormals.push_back(glm::vec4(0.0));
+
 	for(int k = 0; k<faces.size(); k++){
 
 		if(isConvex(faces[k])==true){
 		//if(0==0){
 			vector<int> face = faces[k];
  
+			glm::mat4 transform = getTransform();
 			glm::vec4 p0 = points[face[0]];
-			
 			for(int i=2; i<face.size(); i++){
 				glm::vec4 p1 = points[face[i-1]];
 				glm::vec4 p2 = points[face[i]];
@@ -62,17 +76,31 @@ void obj::buildVBOs(){
 
 				if(genNormals==false){
 					vector<int> facenormal = facenormals[k];
-					NBOvec.push_back(normals[facenormal[0]][0]); NBOvec.push_back(normals[facenormal[0]][1]); NBOvec.push_back(normals[facenormal[0]][2]); //NBOvec.push_back(0.0f);
-					NBOvec.push_back(normals[facenormal[i-1]][0]); NBOvec.push_back(normals[facenormal[i-1]][1]); NBOvec.push_back(normals[facenormal[i-1]][2]); //NBOvec.push_back(0.0f);
-					NBOvec.push_back(normals[facenormal[i]][0]); NBOvec.push_back(normals[facenormal[i]][1]); NBOvec.push_back(normals[facenormal[i]][2]); //NBOvec.push_back(0.0f);
+					glm::vec4 n0 = normals[facenormal[0]];
+					//n0 = glm::normalize(transform*n0);
+					glm::vec4 n1 = normals[facenormal[i-1]];
+					//n1 = glm::normalize(transform*n1);
+					glm::vec4 n2 = normals[facenormal[i]];
+					//n2 = glm::normalize(transform*n2);
+
+					smoothNormals[face[0]] += n0;//normals[facenormal[0]];
+					smoothNormals[face[i-1]] += n1;//normals[facenormal[i-1]];
+					smoothNormals[face[i]] += n2;//normals[facenormal[i]];
+
+					/*NBOvec.push_back(n0[0]); NBOvec.push_back(n0[1]); NBOvec.push_back(n0[2]); //NBOvec.push_back(0.0f);
+					NBOvec.push_back(n1[0]); NBOvec.push_back(n1[1]); NBOvec.push_back(n1[2]); //NBOvec.push_back(0.0f);
+					NBOvec.push_back(n2[0]); NBOvec.push_back(n2[1]); NBOvec.push_back(n2[2]); //NBOvec.push_back(0.0f);*/
 				}else{
                     
 					glm::vec3 a = glm::vec3(p1[0], p1[1], p1[2]) - glm::vec3(p0[0], p0[1], p0[2]);
 					glm::vec3 b = glm::vec3(p2[0], p2[1], p2[2]) - glm::vec3(p0[0], p0[1], p0[2]);
 					glm::vec3 n = glm::normalize(glm::cross(a,b));
-					NBOvec.push_back(n[0]); NBOvec.push_back(n[1]); NBOvec.push_back(n[2]); //NBOvec.push_back(0.0f);
-					NBOvec.push_back(n[0]); NBOvec.push_back(n[1]); NBOvec.push_back(n[2]); //NBOvec.push_back(0.0f);
-					NBOvec.push_back(n[0]); NBOvec.push_back(n[1]); NBOvec.push_back(n[2]); //NBOvec.push_back(0.0f);
+					smoothNormals[face[0]] += glm::vec4(n,0);//normals[facenormal[0]];
+					smoothNormals[face[i-1]] += glm::vec4(n,0);//normals[facenormal[i-1]];
+					smoothNormals[face[i]] += glm::vec4(n,0);//normals[facenormal[i]];
+					//NBOvec.push_back(n[0]); NBOvec.push_back(n[1]); NBOvec.push_back(n[2]); //NBOvec.push_back(0.0f);
+					//NBOvec.push_back(n[0]); NBOvec.push_back(n[1]); NBOvec.push_back(n[2]); //NBOvec.push_back(0.0f);
+					//NBOvec.push_back(n[0]); NBOvec.push_back(n[1]); NBOvec.push_back(n[2]); //NBOvec.push_back(0.0f);
 				}
 
 				IBOvec.push_back(index+0); IBOvec.push_back(index+1); IBOvec.push_back(index+2);
@@ -81,6 +109,30 @@ void obj::buildVBOs(){
 			}
 		}
  	}
+
+	for (int i = 0; i<smoothNormals.size(); ++i)
+	{
+		smoothNormals[i] = glm::normalize(smoothNormals[i]);
+	}
+
+	for(int k = 0; k<faces.size(); k++){
+
+		if(isConvex(faces[k])==true){
+			vector<int> face = faces[k];
+			for(int i=2; i<face.size(); i++){
+				//if(genNormals==false){
+					//vector<int> facenormal = facenormals[k];
+					glm::vec4 n0 = smoothNormals[face[0]];
+					glm::vec4 n1 = smoothNormals[face[i-1]];
+					glm::vec4 n2 = smoothNormals[face[i]];
+					
+					NBOvec.push_back(n0[0]); NBOvec.push_back(n0[1]); NBOvec.push_back(n0[2]); //NBOvec.push_back(0.0f);
+					NBOvec.push_back(n1[0]); NBOvec.push_back(n1[1]); NBOvec.push_back(n1[2]); //NBOvec.push_back(0.0f);
+					NBOvec.push_back(n2[0]); NBOvec.push_back(n2[1]); NBOvec.push_back(n2[2]); //NBOvec.push_back(0.0f);
+				//}
+			}
+		}
+	}
 	
 	vbo = new float[VBOvec.size()];
 	nbo = new float[NBOvec.size()];
@@ -285,6 +337,10 @@ vector<glm::vec4>* obj::getNormals(){
     return &normals;
 }
 
+vector<glm::vec4>* obj::getSmoothNormals(){
+    return &smoothNormals;
+}
+
 vector<glm::vec4>* obj::getTextureCoords(){
     return &texturecoords;
 }
@@ -329,3 +385,20 @@ int obj::getCBOsize(){
 	return cbosize;
 }
 
+glm::mat4 obj::getTransform()
+{
+	glm::mat4 translationMat = glm::translate(glm::mat4(), pos);
+	glm::mat4 rotationMat = glm::rotate(glm::mat4(), rot.x, glm::vec3(1,0,0));
+	rotationMat = rotationMat*glm::rotate(glm::mat4(), rot.y, glm::vec3(0,1,0));
+	rotationMat = rotationMat*glm::rotate(glm::mat4(), rot.z, glm::vec3(0,0,1));
+	glm::mat4 scaleMat = glm::scale(glm::mat4(), scale);
+	return translationMat*rotationMat*scaleMat;
+	//return scaleMat*rotationMat*translationMat;
+}
+
+void obj::setTransforms(glm::vec3 v_pos, glm::vec3 v_rot, glm::vec3 v_scale)
+{
+	pos = v_pos;
+	rot = v_rot;
+	scale = v_scale;
+}

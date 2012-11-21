@@ -108,6 +108,8 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="blur.frag" />
+    <None Include="blur.vert" />
     <None Include="pass.frag" />
     <None Include="pass.vert" />
     <None Include="random.png" />

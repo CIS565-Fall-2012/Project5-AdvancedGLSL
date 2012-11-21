@@ -1,8 +1,27 @@
--------------------------------------------------------------------------------
+﻿-------------------------------------------------------------------------------
 CIS565: Project 5: Advanced GLSL
 -------------------------------------------------------------------------------
 Fall 2012
--------------------------------------------------------------------------------
+--------------------------------------------------------------
+My Notes:
+
+Blog can be found at http://glslvsfs.blogspot.com/
+
+
+Part 1:
+Implemented all the basic stuff and added a revolving moon to as the extra feature. The rim doesn't look too bright because I just intentionally reduced it. Created a hack for the moon, but it works :)
+
+Part 2:
+Implemented regular grid, poisson sphere and poisson sphere in the world.
+I was finding differences in values between world coordinates and projected screen coordinates. So another hack for it to work ;). The change in camera angle changes AO a lot in the world view, it maybe due to the way I have implemented it.
+
+Part 3:
+Implemented pulsing on the Stanford Dragon.
+Implemented skinning. Not working very great as I had expected, but a basic version. The screenshot shows an extreme version of skinning (which no one will ever do). It has 3 joints and the image just rotates it in 3 different directions.
+
+
+
+-----------------
 Due Monday 11/19/2012
 -------------------------------------------------------------------------------
 

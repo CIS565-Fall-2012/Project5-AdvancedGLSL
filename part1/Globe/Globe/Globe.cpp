@@ -35,12 +35,14 @@ static GLuint cloud_tex;
 static GLuint cloudtrans_tex;
 static GLuint earthspec_tex;
 static GLuint disp_tex;
+static GLuint moon_tex;
 
 static const int LONGITUDE_DIVISIONS = 75;
 static const int LATITUDE_DIVISIONS = 75;
 static const int NUM_LONGITUDE_PTS = LONGITUDE_DIVISIONS + 1;
 static const int NUM_LATITUDE_PTS = LATITUDE_DIVISIONS + 1;
 static const float RADIUS = 1;
+static const float RADIUS_MOON = 0.21;
 
 //r theta phi
 vec3 computeSpherical(vec2 uv, float radius) {
@@ -69,47 +71,86 @@ vec3 computeNormal(vec3 spherical) {
 	return computePosition(new_spherical);
 }
 
-void appendPoint(mesh_t * mesh, vec2 uv, float radius) {
+void appendPoint(mesh_t * mesh, vec2 uv, float radius, vec3 offset) {
 	vec3 spherical = computeSpherical(uv, radius);
 	vec3 position = computePosition(spherical);
 	vec3 normal = computeNormal(spherical);
-	mesh->vertices.push_back(position);
+	mesh->vertices.push_back(position+offset);
 	mesh->uvs.push_back(uv);
 	mesh->normals.push_back(normal);
 }
 
 //Trig Time
 void initSphere() {
+
 	mesh_t sphere;
-	//Check assumptions
-	assert(LATITUDE_DIVISIONS >= 2);
-	assert(LONGITUDE_DIVISIONS >= 3);
-    //drop starting row.  Notice num_pts = num_dvisions + 1
-	for (int i = 0; i < NUM_LONGITUDE_PTS; i ++) {
-		vec2 uv(i / (float)(NUM_LONGITUDE_PTS - 1),0);
-        appendPoint(&sphere, uv, RADIUS);
-	}
+	{
+		vec3 offset = vec3(0,0,0);
+		//Check assumptions
+		assert(LATITUDE_DIVISIONS >= 2);
+		assert(LONGITUDE_DIVISIONS >= 3);
+		//drop starting row.  Notice num_pts = num_dvisions + 1
+		for (int i = 0; i < NUM_LONGITUDE_PTS; i ++) {
+			vec2 uv(i / (float)(NUM_LONGITUDE_PTS - 1),0);
+			appendPoint(&sphere, uv, RADIUS, offset);
+		}
 	
-	for (int j = 0; j < LATITUDE_DIVISIONS; j++) {
-		float v = (j + 1)/((float)NUM_LATITUDE_PTS-1);
-        //Set up first point
-		vec2 first_uv(0.0f,v);
-		appendPoint(&sphere, first_uv,RADIUS);
-		//Iterate over divisions
-		for (int i = 0; i < LONGITUDE_DIVISIONS; i++) {
-			//Setup new point
-			vec2 new_uv((i+1)/((float)NUM_LONGITUDE_PTS - 1),v);
-			appendPoint(&sphere,new_uv, RADIUS);
-            unsigned short length = (unsigned short)sphere.vertices.size();
-			unsigned short upper_right = length - 1;
-			unsigned short lower_right = upper_right - NUM_LONGITUDE_PTS;
-			unsigned short lower_left = lower_right - 1;
-			unsigned short upper_left = lower_left + NUM_LONGITUDE_PTS;
-			unsigned short added [] = {upper_left, lower_right, upper_right,
-				upper_left, lower_left, lower_right};
-			for (int i = 0; i < 6; ++i) { sphere.indices.push_back(added[i]); }
+		for (int j = 0; j < LATITUDE_DIVISIONS; j++) {
+			float v = (j + 1)/((float)NUM_LATITUDE_PTS-1);
+			//Set up first point
+			vec2 first_uv(0.0f,v);
+			appendPoint(&sphere, first_uv,RADIUS, offset);
+			//Iterate over divisions
+			for (int i = 0; i < LONGITUDE_DIVISIONS; i++) {
+				//Setup new point
+				vec2 new_uv((i+1)/((float)NUM_LONGITUDE_PTS - 1),v);
+				appendPoint(&sphere,new_uv, RADIUS, offset);
+				unsigned short length = (unsigned short)sphere.vertices.size();
+				unsigned short upper_right = length - 1;
+				unsigned short lower_right = upper_right - NUM_LONGITUDE_PTS;
+				unsigned short lower_left = lower_right - 1;
+				unsigned short upper_left = lower_left + NUM_LONGITUDE_PTS;
+				unsigned short added [] = {upper_left, lower_right, upper_right,
+					upper_left, lower_left, lower_right};
+				for (int i = 0; i < 6; ++i) { sphere.indices.push_back(added[i]); }
+			}
 		}
 	}
+
+	//mesh_t sphere1;
+	{
+		vec3 offset = vec3(0,1.35,-0.2);
+		//Check assumptions
+		assert(LATITUDE_DIVISIONS >= 2);
+		assert(LONGITUDE_DIVISIONS >= 3);
+		//drop starting row.  Notice num_pts = num_dvisions + 1
+		for (int i = 0; i < NUM_LONGITUDE_PTS; i ++) {
+			vec2 uv(i / (float)(NUM_LONGITUDE_PTS - 1),0);
+			appendPoint(&sphere, uv, RADIUS_MOON, offset);
+		}
+	
+		for (int j = 0; j < LATITUDE_DIVISIONS; j++) {
+			float v = (j + 1)/((float)NUM_LATITUDE_PTS-1);
+			//Set up first point
+			vec2 first_uv(0.0f,v);
+			appendPoint(&sphere, first_uv,RADIUS_MOON, offset);
+			//Iterate over divisions
+			for (int i = 0; i < LONGITUDE_DIVISIONS; i++) {
+				//Setup new point
+				vec2 new_uv((i+1)/((float)NUM_LONGITUDE_PTS - 1),v);
+				appendPoint(&sphere,new_uv, RADIUS_MOON, offset);
+				unsigned short length = (unsigned short)sphere.vertices.size();
+				unsigned short upper_right = length - 1;
+				unsigned short lower_right = upper_right - NUM_LONGITUDE_PTS;
+				unsigned short lower_left = lower_right - 1;
+				unsigned short upper_left = lower_left + NUM_LONGITUDE_PTS;
+				unsigned short added [] = {upper_left, lower_right, upper_right,
+					upper_left, lower_left, lower_right};
+				for (int i = 0; i < 6; ++i) { sphere.indices.push_back(added[i]); }
+			}
+		}
+	}
+
 	device_sphere = uploadMesh(sphere);
 }
 
@@ -232,7 +273,7 @@ void rotate(float dx, float dy) {
 
 
 void initView() {
-    dist = 4.0f;
+    dist = 6.0f;
 	rx = -140.0f;
 	ry = 0.0f;
 }
@@ -251,7 +292,7 @@ float time = 0.0;
 
 void display(void)
 {
-	time += 0.0001f;
+	time += 0.2*PI/180.0;
 
 	// clear the screen
     glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -274,6 +315,8 @@ void display(void)
 	glUniformMatrix4fv(glGetUniformLocation(current_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(current_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
 	glUniform1f(glGetUniformLocation(current_prog,"u_time"), time);
+	vec3 worldLightDir = normalize(worlddirlight);
+	glUniform3fv(glGetUniformLocation(current_prog,"u_WorldSpaceDirLight"),1, &worldLightDir[0]);
 
 	glDrawElements(GL_TRIANGLES, current_mesh.num_indices, GL_UNSIGNED_SHORT,0);
 
@@ -294,7 +337,9 @@ void initGlobeShader() {
 	cloud_tex = (unsigned int)SOIL_load_OGL_texture("earthcloudmap.jpg",0,0,0);
     cloudtrans_tex = (unsigned int)SOIL_load_OGL_texture("earthcloudmaptrans.jpg",0,0,0);
 	earthspec_tex = (unsigned int) SOIL_load_OGL_texture("earthspec1k.jpg",0,0,0);
-disp_tex = (unsigned int) SOIL_load_OGL_texture("earthbump1k.jpg",0,0,0);
+	disp_tex = (unsigned int) SOIL_load_OGL_texture("earthbump1k.jpg",0,0,0);
+	moon_tex = (unsigned int)SOIL_load_OGL_texture("moonmap4k.jpg",0,0,0);
+
    	glBindTexture(GL_TEXTURE_2D, cloudtrans_tex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -325,6 +370,9 @@ void setGlobeShader() {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, disp_tex);
     glUniform1i(glGetUniformLocation(current_prog, "u_Bump"),5);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, moon_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_Moon"),6);
 
 }
 

@@ -78,15 +78,19 @@ void initMesh() {
 		for(int i=f; i<process+f; i++){
 			
 			vector<int> face = objmesh->getFaces()->operator[](i);
-			vector<int> facenormal =  objmesh->getFaceNormals()->operator[](i);
+			//vector<int> facenormal =  objmesh->getFaceNormals()->operator[](i);
 
 			mesh.vertices.push_back(glm::vec3(objmesh->getPoints()->operator[](face[0])));
 			mesh.vertices.push_back(glm::vec3(objmesh->getPoints()->operator[](face[1])));
 			mesh.vertices.push_back(glm::vec3(objmesh->getPoints()->operator[](face[2])));
 			
-			mesh.normals.push_back(glm::vec3(objmesh->getNormals()->operator[](facenormal[0])));
+			/*mesh.normals.push_back(glm::vec3(objmesh->getNormals()->operator[](facenormal[0])));
 			mesh.normals.push_back(glm::vec3(objmesh->getNormals()->operator[](facenormal[1])));
-			mesh.normals.push_back(glm::vec3(objmesh->getNormals()->operator[](facenormal[2])));
+			mesh.normals.push_back(glm::vec3(objmesh->getNormals()->operator[](facenormal[2])));*/
+
+			mesh.normals.push_back(glm::vec3(objmesh->getSmoothNormals()->operator[](face[0])));
+			mesh.normals.push_back(glm::vec3(objmesh->getSmoothNormals()->operator[](face[1])));
+			mesh.normals.push_back(glm::vec3(objmesh->getSmoothNormals()->operator[](face[2])));
 
 			mesh.indices.push_back(points);
 			mesh.indices.push_back(points+1);
@@ -142,6 +146,7 @@ GLuint normalTexture = 0;
 GLuint positionTexture = 0;
 GLuint FBO = 0;
 
+GLuint ssaoTexture = 0;
 
 GLuint pass_prog;
 void initPass() {
@@ -166,6 +171,18 @@ void initSSAO() {
 	glBindAttribLocation(ssao_prog, quad_attributes::TEXCOORD, "Texcoord");
  
 	Utility::attachAndLinkProgram(ssao_prog, shaders);
+}
+
+GLuint blur_prog;
+void initBlur() {
+	Utility::shaders_t shaders = Utility::loadShaders("blur.vert", "blur.frag");
+
+    blur_prog = glCreateProgram();
+
+	glBindAttribLocation(blur_prog, 0, "Position");
+	glBindAttribLocation(blur_prog, 1, "Texcoord");
+ 
+	Utility::attachAndLinkProgram(blur_prog, shaders);
 }
 
 void freeFBO() {
@@ -350,6 +367,10 @@ Camera::adjust(float dx, // look left right
         vec2 dir2(dir.x,dir.y);
         vec2 mag = dir2 * tx;
         pos += mag;	
+	}
+
+	if (abs(ty) > 0) {
+		z += ty;
 	}
 
 	if (abs(tz) > 0) {
@@ -581,6 +602,7 @@ void motion(int x, int y)
 void keyboard(unsigned char key, int x, int y) {
     float tx = 0;
     float tz = 0;
+	float ty = 0;
 	switch(key) {
 	case('w'):
       tz = 0.1;
@@ -593,6 +615,12 @@ void keyboard(unsigned char key, int x, int y) {
 	  break;
 	case('a'):
       tx = 0.1;
+	  break;
+	case('q'):
+      ty = +0.1;
+	  break;
+	case('z'):
+      ty = -0.1;
 	  break;
 	case('1'):
       occlusion_type = OCCLUSION_NONE;
@@ -623,8 +651,8 @@ void keyboard(unsigned char key, int x, int y) {
 	  break;
 }
 
-	if (abs(tx) > 0 ||  abs(tz) > 0 ) {
-		cam.adjust(0,0,0,tx,0,tz);
+	if (abs(tx) > 0 ||  abs(tz) > 0 || abs(ty) > 0) {
+		cam.adjust(0,0,0,tx,ty,tz);
 	}
 }
 
@@ -646,6 +674,10 @@ int main (int argc, char* argv[])
 			//renderScene = new scene(data);
 			objmesh = new obj();
 			objLoader* loader = new objLoader(data, objmesh);
+			glm::vec3 meshPos = glm::vec3(0,0,0);
+			glm::vec3 meshRot = glm::vec3(0,0,0);
+			glm::vec3 meshScale = glm::vec3(1,1,1);
+			objmesh->setTransforms(meshPos, meshRot, meshScale);
 			objmesh->buildVBOs();
 			delete loader;
 			loadedScene = true;
@@ -676,6 +708,7 @@ int main (int argc, char* argv[])
 	cout << "OpenGL version " << glGetString(GL_VERSION) << " supported" << endl;
     
     initNoise();
+	initBlur();
     initSSAO();
     initPass();
     initFBO(width,height);

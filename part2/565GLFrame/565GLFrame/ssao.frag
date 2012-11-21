@@ -8,13 +8,13 @@
 #define OCCLUSION_POISSON_SS_SAMPLES 2
 #define OCCLUSION_WORLD_SPACE_SAMPLES 3
 
-
 #define	DISPLAY_DEPTH 0
 #define	DISPLAY_NORMAL 1
 #define	DISPLAY_POSITION 2
 #define	DISPLAY_OCCLUSION 3
 #define	DISPLAY_TOTAL 4
 
+#define PI 3.14
 
 /////////////////////////////////////
 // Uniforms, Attributes, and Outputs
@@ -96,14 +96,42 @@ float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
 	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+
+	//if (occluder_position.z >= pt_position.z)
+		//return 0.0;
+
+	float depthDiff = (pt_position.z - occluder_position.z);
+	//if (depthDiff < 0.001)
+		//return 0.0;
+
+	float normDiff = (1.0-dot(occluder_normal, pt_normal));
+	return step(0.001, depthDiff)*normDiff*(1.0-smoothstep(0.001, 0.08, depthDiff));
+	//return abs(depthDiff);
+
+	//return -1.0f;///IMPLEMENT THIS
 }
 
 const float REGULAR_SAMPLE_STEP = 0.012f;
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	
+	float occlusion = 0.0;
+	normal = normalize(normal);
+	for (float x = -1.5*REGULAR_SAMPLE_STEP; x<= 1.5*REGULAR_SAMPLE_STEP; x+= REGULAR_SAMPLE_STEP)
+	{
+		for (float y = -1.5*REGULAR_SAMPLE_STEP; y<= 1.5*REGULAR_SAMPLE_STEP; y+= REGULAR_SAMPLE_STEP)
+		{
+			vec2 occluderTexcoord = vec2(texcoord.x+x, texcoord.y+y);
+			vec3 occluderPosition = samplePos(occluderTexcoord);
+			vec3 occluderNormal = sampleNrm(occluderTexcoord);
+			occluderNormal = normalize(occluderNormal);
+			occlusion += gatherOcclusion(normal, position, occluderNormal, occluderPosition);
+		}
+	}
+
+	return occlusion * (1.0/16.0); 
+	//return -1.0f; //IMPLEMENT THIS
 }
 
 
@@ -132,7 +160,26 @@ const float SS_RADIUS = 0.02f;
 float occlusionWithPoissonSSSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+
+	float occlusion = 0.0;
+	normal = normalize(normal);
+	float randVal = getRandomScalar(texcoord)*2.0*PI;
+	float cosVal = cos(randVal);
+	float sinVal = sin(randVal);
+
+	for(int i=0; i<NUM_SS_SAMPLES; ++i)
+	{
+		vec2 occluderTexcoord = vec2(texcoord.x+SS_RADIUS*(cosVal*poissonDisk[i].x - sinVal*poissonDisk[i].y), 
+									 texcoord.y+SS_RADIUS*(sinVal*poissonDisk[i].x + cosVal*poissonDisk[i].y));
+		vec3 occluderPosition = samplePos(occluderTexcoord);
+		vec3 occluderNormal = sampleNrm(occluderTexcoord);
+		occluderNormal = normalize(occluderNormal);
+		occlusion += gatherOcclusion(normal, position, occluderNormal, occluderPosition);
+	}
+	
+	return occlusion * (1.0/16.0); 
+
+	//return -1.0f; //IMPLEMENT THIS
 }
 
 
@@ -161,8 +208,36 @@ vec3 poissonSphere[NUM_WS_SAMPLES] = vec3[](
 const float SPHERE_RADIUS = 0.3f;
 float occlusionWithWorldSpaceSamples(vec2 texcoord,
 	vec3 position,
-	vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	vec3 normal,
+	float diffX) {
+
+	
+	float occlusion = 0.0;
+	normal = normal * 2.0 -1.0;
+	normal = normalize(normal);
+	vec3 randPlane = getRandomNormal(texcoord);
+		
+	for(int i=0; i<NUM_SS_SAMPLES; ++i)
+	{
+		vec3 newPoint = reflect(poissonSphere[i], randPlane);
+		
+		vec3 viewNewPoint = position + sign(dot(newPoint,normal)) * newPoint * SPHERE_RADIUS;
+		vec4 screenPointHom = u_Persp * vec4(viewNewPoint,1.0);
+		vec2 screenPoint = (screenPointHom.xy)/screenPointHom.w;
+		//screenPoint += vec2(diffX,0.0);
+		screenPoint *= vec2(0.55,1.0);
+		screenPoint = clamp(screenPoint, vec2(-1.0), vec2(1.0));
+		screenPoint = screenPoint*0.5 + vec2(0.5);
+			
+		vec2 occluderTexcoord = vec2(screenPoint.x, screenPoint.y);
+		vec3 occluderPosition = samplePos(occluderTexcoord);
+		vec3 occluderNormal = sampleNrm(occluderTexcoord);
+		occluderNormal = normalize(occluderNormal);
+		occlusion += gatherOcclusion(normal, position, occluderNormal, occluderPosition);
+	}
+
+	return occlusion * (1.0/16.0); 
+	//return -1.0f; //IMPLEMENT THIS
 }
 
 //////////////////////////////////////
@@ -185,6 +260,16 @@ void main() {
 	vec3 position = samplePos(fs_Texcoord);
 
 	
+	vec4 newVal = u_Persp*vec4(position,1.0);
+	vec2 newV = newVal.xy / newVal.w;
+	newV = clamp(newV, vec2(-1.0,-1.0), vec2(1.0,1.0));
+	newV = newV*0.5 + 0.5;
+	float diffX;
+	if (abs(newV.x) < 0.001)
+	diffX = 1.0;
+	else
+	diffX = fs_Texcoord.x / newV.x;
+
 	switch (u_OcclusionType) {
 		case(OCCLUSION_NONE):
 			break;
@@ -195,7 +280,7 @@ void main() {
 			occlusion = occlusionWithPoissonSSSamples(fs_Texcoord, position, normal);
 			break;
 		case(OCCLUSION_WORLD_SPACE_SAMPLES):
-			occlusion = occlusionWithWorldSpaceSamples(fs_Texcoord, position, normal);
+			occlusion = occlusionWithWorldSpaceSamples(fs_Texcoord, position, normal, diffX);
 			break;
 	}
 		
@@ -210,7 +295,8 @@ void main() {
 			out_Color = vec4(abs(normal),1.0f);
 			break;
 		case(DISPLAY_POSITION):
-			out_Color = vec4(abs(position) / u_Far,1.0f);
+			out_Color = vec4(abs(position) / u_Far, 1.0f);
+			//out_Color = vec4(0.0,abs(position.y)/10.0,0.0,1.0f);
 			break;
 		case(DISPLAY_OCCLUSION):
 			out_Color = vec4(vec3(1.0f) - occlusion, 1.0f);

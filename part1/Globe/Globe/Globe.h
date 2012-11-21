@@ -49,7 +49,7 @@ void setGlobeShader();
 glm::vec3 computeSpherical(glm::vec2 uv, float radius);
 glm::vec3 computePosition(glm::vec3 spherical) ;
 glm::vec3 computeNormal(glm::vec3 spherical);
-void appendPoint(mesh_t * mesh, glm::vec2 uv, float radius);
+void appendPoint(mesh_t * mesh, glm::vec2 uv, float radius, glm::vec3 offset);
 void initSphere();
 device_mesh_t uploadMesh(const mesh_t & mesh);
 
