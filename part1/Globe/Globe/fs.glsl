@@ -18,6 +18,8 @@ uniform sampler2D u_CloudTrans;
 uniform sampler2D u_EarthSpec;
 //Bump map
 uniform sampler2D u_Bump;
+//Noise map
+uniform sampler2D u_Noise;
 
 uniform float u_time;
 uniform mat4 u_InvTrans;
@@ -44,6 +46,13 @@ void main(void)
     float gammaCorrect = 1/1.8; //gamma correct by 1/1.8
 
     vec4 dayColor = texture2D(u_DayDiffuse, v_Texcoord);
+	float compensation;
+	if(u_time > 0.5)
+		compensation = 0.5;
+	else
+		compensation = 0.0;
+
+	vec4 noiseColor = texture2D(u_Noise, vec2(v_Texcoord.s * (u_time + compensation - int(u_time)), v_Texcoord.t));
 
 	//Calculating night time texture and gamma correction
 	vec4 nightTextureColor = texture2D(u_Night, v_Texcoord);
@@ -98,11 +107,11 @@ void main(void)
 	{
 		if(earthDecider > 0.01)
 		{
-			diffuseAndSpecular = (-0.6 * diffuse + 0.4 * specular) * dayColor;
+			diffuseAndSpecular = (-0.6 * diffuse + 0.4 * specular) * (dayColor  +  0.1 * noiseColor);
 		}
 		else
 		{
-			diffuseAndSpecular = -1.0 * diffuse * dayColor;
+			diffuseAndSpecular = -1.0 * diffuse * (dayColor);
 		}
 	}
 	else if(diffuse2 < 0)
@@ -110,11 +119,11 @@ void main(void)
 		vec4 interpolatedColor = mix(dayColor, nightColor, (diffuse2 + 0.1) / 0.2);
 		if(earthDecider > 0.01)
 		{
-			diffuseAndSpecular = (-0.6 * diffuse + 0.4 * specular) * interpolatedColor;
+			diffuseAndSpecular = (-0.6 * diffuse + 0.4 * specular) * (interpolatedColor +  0.1 * noiseColor);
 		}
 		else
 		{
-			diffuseAndSpecular = -1.0 * diffuse * interpolatedColor;
+			diffuseAndSpecular = -1.0 * diffuse * (interpolatedColor);
 		}
 
 	}

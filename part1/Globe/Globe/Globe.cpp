@@ -35,6 +35,7 @@ static GLuint cloud_tex;
 static GLuint cloudtrans_tex;
 static GLuint earthspec_tex;
 static GLuint disp_tex;
+static GLuint noise_tex;
 
 static const int LONGITUDE_DIVISIONS = 75;
 static const int LATITUDE_DIVISIONS = 75;
@@ -294,7 +295,8 @@ void initGlobeShader() {
 	cloud_tex = (unsigned int)SOIL_load_OGL_texture("earthcloudmap.jpg",0,0,0);
     cloudtrans_tex = (unsigned int)SOIL_load_OGL_texture("earthcloudmaptrans.jpg",0,0,0);
 	earthspec_tex = (unsigned int) SOIL_load_OGL_texture("earthspec1k.jpg",0,0,0);
-disp_tex = (unsigned int) SOIL_load_OGL_texture("earthbump1k.jpg",0,0,0);
+	disp_tex = (unsigned int) SOIL_load_OGL_texture("earthbump1k.jpg",0,0,0);
+	noise_tex = (unsigned int) SOIL_load_OGL_texture("Noise.jpg",0,0,0);
    	glBindTexture(GL_TEXTURE_2D, cloudtrans_tex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -325,6 +327,9 @@ void setGlobeShader() {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, disp_tex);
     glUniform1i(glGetUniformLocation(current_prog, "u_Bump"),5);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, noise_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_Noise"),6);
 
 }
 

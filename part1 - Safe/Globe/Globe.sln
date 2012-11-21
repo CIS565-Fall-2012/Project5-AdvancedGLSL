@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Globe", "Globe\Globe.vcxproj", "{041D8138-2880-40A9-A05A-5ECD17BCA6DF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shader_Loading", "Shader_Loading\Shader_Loading.vcxproj", "{5669AD87-4229-4695-A81A-0775DB7BBB67}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SOIL", "SOIL\SOIL.vcxproj", "{25544C77-3B78-405F-A15D-1231D05969F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5669AD87-4229-4695-A81A-0775DB7BBB67}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5669AD87-4229-4695-A81A-0775DB7BBB67}.Debug|Win32.Build.0 = Debug|Win32
+		{5669AD87-4229-4695-A81A-0775DB7BBB67}.Release|Win32.ActiveCfg = Release|Win32
+		{5669AD87-4229-4695-A81A-0775DB7BBB67}.Release|Win32.Build.0 = Release|Win32
+		{25544C77-3B78-405F-A15D-1231D05969F3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{25544C77-3B78-405F-A15D-1231D05969F3}.Debug|Win32.Build.0 = Debug|Win32
+		{25544C77-3B78-405F-A15D-1231D05969F3}.Release|Win32.ActiveCfg = Release|Win32
+		{25544C77-3B78-405F-A15D-1231D05969F3}.Release|Win32.Build.0 = Release|Win32
+		{041D8138-2880-40A9-A05A-5ECD17BCA6DF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{041D8138-2880-40A9-A05A-5ECD17BCA6DF}.Debug|Win32.Build.0 = Debug|Win32
+		{041D8138-2880-40A9-A05A-5ECD17BCA6DF}.Release|Win32.ActiveCfg = Release|Win32
+		{041D8138-2880-40A9-A05A-5ECD17BCA6DF}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
