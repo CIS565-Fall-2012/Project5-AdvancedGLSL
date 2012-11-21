@@ -42,6 +42,9 @@
     <None Include="pulsing.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="morphing.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

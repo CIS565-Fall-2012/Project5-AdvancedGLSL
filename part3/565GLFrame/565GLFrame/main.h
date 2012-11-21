@@ -100,7 +100,8 @@ enum Display {
 
 enum VertexShader {
 	VERTEX_SHADER_PASSTHROUGH = 0,
-	VERTEX_SHADER_PULSING = 1
+	VERTEX_SHADER_PULSING = 1,
+	VERTEX_SHADER_MORPHING = 2
 };
 
 char* loadFile(char *fname, GLint &fSize);

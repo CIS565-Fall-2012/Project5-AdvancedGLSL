@@ -171,6 +171,19 @@ void initPulsing() {
 	
 }
 
+GLuint morphing_prog;
+void initMorphing() {
+	Utility::shaders_t shaders = Utility::loadShaders("morphing.vert", "pass.frag");
+
+	morphing_prog = glCreateProgram();
+
+	glBindAttribLocation(morphing_prog,mesh_attributes::POSITION, "Position");
+	glBindAttribLocation(morphing_prog,mesh_attributes::NORMAL, "Normal");
+
+	Utility::attachAndLinkProgram(morphing_prog,shaders);
+	
+}
+
 GLuint ssao_prog;
 void initSSAO() {
 	Utility::shaders_t shaders = Utility::loadShaders("ssao.vert", "ssao.frag");
@@ -390,6 +403,13 @@ mat4x4 get_mesh_world() {
 	return tilt_mat * translate_mat * scale_mat;
 }
 
+mat4x4 get_mesh_small_world() {
+	vec3 tilt(1.0f,0.0f,0.0f);
+	mat4 translate_mat = glm::translate(glm::vec3(0.0f,.5f,0.0f));
+	mat4 tilt_mat = glm::rotate(mat4(), 90.0f, tilt);
+	mat4 scale_mat = glm::scale(glm::mat4(), glm::vec3(2.0f, 2.0f, 2.0f));
+	return tilt_mat * translate_mat * scale_mat;
+}
 
 float FARP;
 float NEARP;
@@ -407,18 +427,35 @@ void draw_mesh() {
 	case VERTEX_SHADER_PULSING:
 		curr_prog = pulsing_prog;
 		break;
+	case VERTEX_SHADER_MORPHING:
+		curr_prog = morphing_prog;
+		break;
 	};
 
 	glUseProgram(curr_prog);
 	
 
 	mat4 model = get_mesh_world();
+	mat4 smallModel = get_mesh_small_world();
 	mat4 view = cam.get_view();
 	mat4 persp = perspective(45.0f,(float)width/(float)height,NEARP,FARP);
 	mat4 inverse_transposed = transpose(inverse(view*model));
 
     glUniform1f(glGetUniformLocation(curr_prog, "u_Far"), FARP);
-	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Model"),1,GL_FALSE,&model[0][0]);
+	switch (vertex_shader_type)
+	{
+	case VERTEX_SHADER_PASSTHROUGH:
+		glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Model"),1,GL_FALSE,&model[0][0]);
+		break;
+	case VERTEX_SHADER_PULSING:
+		glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Model"),1,GL_FALSE,&model[0][0]);
+		break;
+	case VERTEX_SHADER_MORPHING:
+		glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_BigModel"),1,GL_FALSE,&model[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_SmallModel"),1,GL_FALSE,&smallModel[0][0]);
+		break;
+	};	
+	
 	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_View"),1,GL_FALSE,&view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(curr_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
@@ -631,6 +668,9 @@ void keyboard(unsigned char key, int x, int y) {
 	case('2'):
 		vertex_shader_type = VERTEX_SHADER_PULSING;
 		break;
+	case('3'):
+		vertex_shader_type = VERTEX_SHADER_MORPHING;
+		break;
 }
 
 	if (abs(tx) > 0 ||  abs(tz) > 0 ) {
@@ -689,6 +729,7 @@ int main (int argc, char* argv[])
     initSSAO();
     initPass();
 	initPulsing();
+	initMorphing();
     initFBO(width,height);
     init();
 	initMesh();

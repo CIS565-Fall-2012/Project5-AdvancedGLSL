@@ -108,6 +108,7 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="morphing.vert" />
     <None Include="pass.frag" />
     <None Include="pass.vert" />
     <None Include="pulsing.vert" />
