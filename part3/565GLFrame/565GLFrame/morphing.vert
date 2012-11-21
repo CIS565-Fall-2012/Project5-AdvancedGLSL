@@ -22,7 +22,7 @@ void main(void) {
 	vec4 smallWorld = u_SmallModel * vec4(Position, 1.0);
     vec4 smallCamera = u_View * smallWorld;
 
-	float interp = (sin(u_time*0.05)+1)*0.5; //mod(u_time*0.01, 1.0);
+	float interp = (sin(u_time*0.05)+1)*0.5;
 
 	fs_Position = interp*bigCamera + (1-interp)*smallCamera;
 	gl_Position = u_Persp * fs_Position;
