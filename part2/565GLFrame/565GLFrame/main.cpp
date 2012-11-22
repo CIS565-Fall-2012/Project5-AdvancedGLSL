@@ -594,6 +594,12 @@ void keyboard(unsigned char key, int x, int y) {
 	case('a'):
       tx = 0.1;
 	  break;
+	case('q'):
+      cam.z+=0.1;
+	  break;
+	case('e'):
+      cam.z-=0.1;
+	  break;
 	case('1'):
       occlusion_type = OCCLUSION_NONE;
 	  break;
