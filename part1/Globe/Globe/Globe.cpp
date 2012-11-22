@@ -24,6 +24,7 @@ static device_mesh_t current_mesh;
 static device_mesh_t device_sphere;
 
 static GLuint current_prog;
+static GLuint relief_prog;
 static GLuint lambert_prog;
 static GLuint blinnphong_prog;
 static GLuint fresnel_prog;
@@ -248,6 +249,7 @@ mat4 get_view() {
 }
 
 float time = 0.0;
+float toon = 0.95;
 
 void display(void)
 {
@@ -274,6 +276,7 @@ void display(void)
 	glUniformMatrix4fv(glGetUniformLocation(current_prog,"u_Persp"),1,GL_FALSE,&persp[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(current_prog,"u_InvTrans") ,1,GL_FALSE,&inverse_transposed[0][0]);
 	glUniform1f(glGetUniformLocation(current_prog,"u_time"), time);
+	glUniform1f(glGetUniformLocation(current_prog,"u_toon"), toon);
 
 	glDrawElements(GL_TRIANGLES, current_mesh.num_indices, GL_UNSIGNED_SHORT,0);
 
@@ -284,7 +287,8 @@ void display(void)
 
 void reshape(int w, int h)
 {
-	glViewport(0,0,(GLsizei)w,(GLsizei)h);
+	float m = (w<h?w:h);
+	glViewport(0.5*(w-m),0.5*(h-m),(GLsizei)m,(GLsizei)m);
 }
 
 void initGlobeShader() {
@@ -294,17 +298,53 @@ void initGlobeShader() {
 	cloud_tex = (unsigned int)SOIL_load_OGL_texture("earthcloudmap.jpg",0,0,0);
     cloudtrans_tex = (unsigned int)SOIL_load_OGL_texture("earthcloudmaptrans.jpg",0,0,0);
 	earthspec_tex = (unsigned int) SOIL_load_OGL_texture("earthspec1k.jpg",0,0,0);
-disp_tex = (unsigned int) SOIL_load_OGL_texture("earthbump1k.jpg",0,0,0);
+	disp_tex = (unsigned int) SOIL_load_OGL_texture("earthbump1k.jpg",0,0,0);
    	glBindTexture(GL_TEXTURE_2D, cloudtrans_tex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glBindTexture(GL_TEXTURE_2D, 0);
    	glBindTexture(GL_TEXTURE_2D, cloud_tex);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   	glBindTexture(GL_TEXTURE_2D, daydiffuse_tex);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   	glBindTexture(GL_TEXTURE_2D, night_tex);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glBindTexture(GL_TEXTURE_2D, earthspec_tex);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   	glBindTexture(GL_TEXTURE_2D, disp_tex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void initReliefShader() {
+	relief_prog = initShader("vs.glsl", "reliefFS.glsl",NULL,NULL,0);
+}
+
 void setGlobeShader() {
 	current_prog = globe_prog;
+	glUseProgram(current_prog);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, daydiffuse_tex);
+	glUniform1i(glGetUniformLocation(current_prog, "u_DayDiffuse"),0);
+    glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, night_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_Night"),1);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, cloud_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_Cloud"),2);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, cloudtrans_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_CloudTrans"),3);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, earthspec_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_EarthSpec"),4);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, disp_tex);
+    glUniform1i(glGetUniformLocation(current_prog, "u_Bump"),5);
+
+}
+
+void setReliefShader() {
+	current_prog = relief_prog;
 	glUseProgram(current_prog);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -335,8 +375,27 @@ void keyboard(unsigned char key, int x, int y) {
 		   break;
 	   case '-':
            slowDownRotation();
+		   break;
+	   case '1':
+           setGlobeShader();
+		   break;	
+	   case '2':
+           setReliefShader();
+		   break;	
+	   case ']':
+		   toon += 0.01f;
+		   break;	
+	   case '[':
+		   toon -= 0.01f;
+		   break;	
+	   case '}':
+		   toon += 0.05f;
+		   break;	
+	   case '{':
+		   toon -= 0.05f;
 		   break;	
 	}
+	toon = glm::clamp( toon, 0.1f, 0.95f );
 }
 
 int mouse_buttons = 0;
@@ -403,7 +462,8 @@ int main (int argc, char* argv[])
     initView();
 	initSphere();
     initGlobeShader();
-    setGlobeShader();
+    initReliefShader();
+    setReliefShader();
 	setCurrentMesh(device_sphere);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);	

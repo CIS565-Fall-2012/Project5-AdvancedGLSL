@@ -52,5 +52,8 @@
     <None Include="vs.glsl">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="reliefFS.glsl">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

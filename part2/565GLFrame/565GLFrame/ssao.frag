@@ -95,15 +95,30 @@ float getRandomScalar(vec2 texcoords) {
 float gatherOcclusion( vec3 pt_normal,
 	vec3 pt_position,
 	vec3 occluder_normal,
-	vec3 occluder_position) {
-	return -1.0f;///IMPLEMENT THIS
+	vec3 occluder_position ) 
+{
+	float overheadTerm = dot( pt_normal, normalize( occluder_position - pt_position ) );
+	float distanceTerm = 1.0 / ( 1.0 + length( occluder_position - pt_position ) );
+	float planarlyTerm = 1.0 - abs( dot( pt_normal, occluder_normal ) );
+
+	// From the gamedev link with crytek screenshots
+	return planarlyTerm * distanceTerm * max( 0.0, overheadTerm ); 
 }
 
 const float REGULAR_SAMPLE_STEP = 0.012f;
 float occlusionWithRegularSamples(vec2 texcoord, 
 	vec3 position,
     vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	float accumOcclude = 0;
+	for( float i = -0.75; i <= 0.75; i += 0.5 )
+	{
+		for( float j = -0.75; j <= 0.75; j += 0.5 )
+		{
+			vec2 pos = texcoord + vec2( i, j ) * REGULAR_SAMPLE_STEP;
+			accumOcclude += gatherOcclusion( normalize( normal ), position, normalize( sampleNrm( pos ) ), samplePos( pos ) ) / 16.0;
+		}
+	}
+	return accumOcclude; //IMPLEMENT THIS
 }
 
 
@@ -131,8 +146,18 @@ vec2 poissonDisk[NUM_SS_SAMPLES] = vec2[](
 const float SS_RADIUS = 0.02f;
 float occlusionWithPoissonSSSamples(vec2 texcoord, 
 	vec3 position,
-    vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+    vec3 normal) 
+{
+	float theta = 6.28318 * getRandomScalar( texcoord );
+	float accumOcclude = 0;
+	mat2 rot = mat2( vec2(  cos( theta ), sin( theta ) ), 
+					 vec2( -sin( theta ), cos( theta ) ) );
+	for( int i = 0; i < NUM_SS_SAMPLES; i ++ )
+	{
+		vec2 pos = texcoord + rot * poissonDisk[i] * SS_RADIUS;
+		accumOcclude += gatherOcclusion( normalize( normal ), position, normalize( sampleNrm( pos ) ), samplePos( pos ) ) / 16.0;
+	}
+	return accumOcclude; //IMPLEMENT THIS
 }
 
 
@@ -162,7 +187,18 @@ const float SPHERE_RADIUS = 0.3f;
 float occlusionWithWorldSpaceSamples(vec2 texcoord,
 	vec3 position,
 	vec3 normal) {
-	return -1.0f; //IMPLEMENT THIS
+	vec3 reflectnormal = getRandomNormal( texcoord );
+	float accumOcclude = 0;
+	for( int i = 0; i < 16; i ++ )
+	{
+		vec3 point = reflect( poissonSphere[i]*0.3, reflectnormal );
+		point = point * sign( dot( point, normal ) ) + position;
+		vec4 screen = u_Persp * vec4( point, 1.0 );
+		screen = screen / screen.w * 0.5 + 0.5;
+		vec2 pos = screen.xy;
+		accumOcclude += gatherOcclusion( normalize( normal ), position, normalize( sampleNrm( pos ) ), samplePos( pos ) ) / 16.0;
+	}
+	return accumOcclude; //IMPLEMENT THIS
 }
 
 //////////////////////////////////////

@@ -39,6 +39,12 @@
     <None Include="random.png">
       <Filter>Resources</Filter>
     </None>
+    <None Include="melt.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="blip.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
