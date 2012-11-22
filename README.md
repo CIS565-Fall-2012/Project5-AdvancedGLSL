@@ -11,9 +11,9 @@ Submission
 -------------------------------------------------------------------------------
 I have divided the project into 3 parts for Globe, SSAO and Vertex Shader.
 
-Globe: Completed all the required parts. For the extra, I used a nois map to animate the oceans.
-SSAO: I completed the regular sample and the poisson disk methods.
-Vertex Shader: I did vertex pulsing. I used a Stanford Dragon as my test model.
+* Globe: Completed all the required parts. For the extra, I used a nois map to animate the oceans.
+* SSAO: I completed the regular sample and the poisson disk methods.
+* Vertex Shader: I did vertex pulsing. I used a Stanford Dragon as my test model.
 
 -------------------------------------------------------------------------------
 INTRODUCTION:
