@@ -7,6 +7,32 @@ Due Monday 11/19/2012
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
+Submission
+-------------------------------------------------------------------------------
+I have divided the project into 3 parts for Globe, SSAO and Vertex Shader.
+
+Globe: Completed all the required parts. For the extra, I used a nois map to animate the oceans.
+SSAO: I completed the regular sample and the poisson disk methods.
+Vertex Shader: I did vertex pulsing. I used a Stanford Dragon as my test model.
+
+-------------------------------------------------------------------------------
+INTRODUCTION:
+-------------------------------------------------------------------------------
+In this project, you will further explore the world of GLSL in three parts. The first part of this project is a globe renderer capable of rendering a convincing model of planet Earth from space. In the second part of this project, you will explore and implement a handful of screen-space ambient occlusion techniques based entirely in the fragment shader. Finally, in the third and last part of this project, you will implement several interesting vertex shading operations of your choice from a given list of options.
+
+-------------------------------------------------------------------------------
+CONTENTS:
+-------------------------------------------------------------------------------
+The Project5 root directory contains the following subdirectories:
+	
+* part1/ contains the base code for the globe renderer part of the assignment.
+* part1/Globe contains a Visual Studio 2010 project for the globe renderer
+* part1/shared32 contains libraries that are required to build and run the globe renderer
+* part2/ contains the base code for both the screen space ambient occlusion and vertex shading parts of the assignment.
+* part2/565GLFrame contains a Visual Studio 2010 project that serves as a generic OpenGL framework
+
+
+-------------------------------------------------------------------------------
 NOTE:
 -------------------------------------------------------------------------------
 This project requires any graphics card with support for a modern OpenGL pipeline. Any AMD, NVIDIA, or Intel card from the past few years should work fine, and every machine in the SIG Lab and Moore 100 is capable of running this project.
