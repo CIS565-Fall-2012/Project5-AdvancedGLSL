@@ -19,10 +19,10 @@ I have also implemented SSAO with a uniform sampler and a poisson disk sampler (
 
 
 Uniform Sampler
-![Uniform Sampler](Project5-AdvancedGLSL/raw/master/part2/ssao1.png)
+![Uniform Sampler](Project5-AdvancedGLSL/raw/master/part2/565GLFrame/ssao1.png)
 
 Poisson Disk
-![Poisson Disk](Project5-AdvancedGLSL/raw/master/part2/ssao1.png)
+![Poisson Disk](Project5-AdvancedGLSL/raw/master/part2/565GLFrame/ssao1.png)
 
 
 Finally I have implemented two vertex shaders with interesting effects. The first is a melting effect where the model gradually sinks into a 2D puddle at the bottom of the screen. The second is a blip effect where the model is bulged out from the y-axis along the x and z axes in a small blip that moves up and down in time.
