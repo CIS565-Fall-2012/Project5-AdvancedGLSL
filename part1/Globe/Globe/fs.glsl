@@ -57,7 +57,10 @@ void main(void)
 	vec4 cloud = texture2D(u_Cloud, vec2(v_Texcoord.s + u_time, v_Texcoord.t));
 	vec4 cloudTrans = texture2D(u_CloudTrans, vec2(v_Texcoord.s + u_time, v_Texcoord.t));
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Part 2 and 3
 	if(diffuse >= 0.0)
 	{
 		if(earthSpec == vec4(1,1,1,1))
@@ -69,9 +72,13 @@ void main(void)
 		gl_FragColor = mix(gl_FragColor, cloudColor, vec4(1,1,1,1) - cloudTrans);
 	}
 	else
+<<<<<<< HEAD
 	{
 		gl_FragColor = mix(0.6 * nightColor, vec4(0,0,0,0), vec4(1,1,1,1) - cloudTrans);
 	}
+=======
+		gl_FragColor = mix(0.6 * nightColor, vec4(0,0,0,0), vec4(1,1,1,1) - cloudTrans);
+>>>>>>> Part 2 and 3
 
 	float rimFactor = dot(v_Normal, v_Position) + 1.0;
 	if(rimFactor > 0.0)
